@@ -15,6 +15,8 @@ AFRAME.registerBrush('single-sphere',
       this.mesh.visible = false
     },
     addPoint: function (position, orientation, pointerPosition, pressure, timestamp) {
+      console.log("AddPoint single-sphere");
+
       if (!this.firstPoint) {
         this.firstPoint = pointerPosition.clone();
         this.mesh.position.set(this.firstPoint.x, this.firstPoint.y, this.firstPoint.z)

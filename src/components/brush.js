@@ -48,6 +48,8 @@ AFRAME.registerComponent('brush', {
     });
 
     this.el.addEventListener('paint', function (evt) {
+      console.log("brush paint");
+
       if (!self.data.enabled) { return; }
       // Trigger
       var value = evt.detail.value;
@@ -67,6 +69,8 @@ AFRAME.registerComponent('brush', {
     });
   },
   update: function (oldData) {
+    console.log("brush update");
+
     var data = this.data;
     if (oldData.color !== data.color) {
       this.color.set(data.color);
@@ -77,12 +81,16 @@ AFRAME.registerComponent('brush', {
     }
   },
   tick: (function () {
+    console.log("brush tick 1");
+
     var position = new THREE.Vector3();
     var rotation = new THREE.Quaternion();
     var scale = new THREE.Vector3();
 
     return function tick (time, delta) {
       if (this.currentStroke && this.active) {
+        console.log("brush tick 2");
+
         this.obj.matrixWorld.decompose(position, rotation, scale);
         var pointerPosition = this.system.getPointerPosition(position, rotation);
         this.currentStroke.addPoint(position, rotation, pointerPosition, this.sizeModifier, time);
@@ -90,6 +98,8 @@ AFRAME.registerComponent('brush', {
     };
   })(),
   startNewStroke: function () {
+    console.log("brush startNewStroke");
+
     document.getElementById('ui_paint').play();
     this.currentStroke = this.system.addNewStroke(this.data.brush, this.color, this.data.size);
     this.el.emit('stroke-started', {entity: this.el, stroke: this.currentStroke});

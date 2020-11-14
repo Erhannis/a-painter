@@ -12,6 +12,8 @@ AFRAME.registerBrush('cubes',
       this.geometry = new THREE.BoxGeometry(1, 1, 1);
     },
     addPoint: function (position, orientation, pointerPosition, pressure, timestamp) {
+      console.log("AddPoint cubes");
+      
       var box = new THREE.Mesh(this.geometry, this.material);
 
       var sca = pressure * this.data.size * Math.random();

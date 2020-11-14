@@ -60,6 +60,8 @@ var onLoaded = require('../onloaded.js');
     },
 
     addPoint: (function () {
+      console.log("AddPoint stamp");
+
       var axis = new THREE.Vector3();
       var dir = new THREE.Vector3();
       var a = new THREE.Vector3();

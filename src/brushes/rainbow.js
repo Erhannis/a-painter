@@ -56,6 +56,8 @@
         this.object3D.add(mesh);
       },
       addPoint: (function () {
+        console.log("AddPoint rainbow");
+        
         var direction = new THREE.Vector3();
         var posA = new THREE.Vector3();
         var posB = new THREE.Vector3();
