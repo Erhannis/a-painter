@@ -40,9 +40,26 @@ window.Utils = (function() {
         return tooltips;
     }
 
+    function mirrorQuaternion(q, dir) { //TODO I haven't actually verified this is correct
+        q = q.clone();
+        var a = 2*Math.acos(q.w);
+        var n = new THREE.Vector3();
+        var sa = Math.sin(a/2);
+        n.x = q.x / sa;
+        n.y = q.y / sa;
+        n.z = q.z / sa;
+        // Project onto and past `dir`
+        n = n.clone().project(dir).sub(n).multiplyScalar(2).add(n);
+        q.x = n.x * sa;
+        q.y = n.y * sa;
+        q.z = n.z * sa;
+        return q;
+    }
+
     return {
         numberToFixed: numberToFixed,
         arrayNumbersToFixed: arrayNumbersToFixed,
-        getTooltips: getTooltips
+        getTooltips: getTooltips,
+        mirrorQuaternion: mirrorQuaternion
     }
 }());

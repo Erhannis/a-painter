@@ -53,11 +53,10 @@ var onLoaded = require('../onloaded.js');
       this.sharedBuffer.undo(this.prevIdx);
     },
     addPoint: (function () {
-      console.log("AddPoint line");
-
       var direction = new THREE.Vector3();
 
       return function (position, orientation, pointerPosition, pressure, timestamp) {
+        console.log("AddPoint line");
         var converter = this.materialOptions.converter;
 
         direction.set(1, 0, 0);

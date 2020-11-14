@@ -87,12 +87,21 @@ AFRAME.registerComponent('brush', {
     var rotation = new THREE.Quaternion();
     var scale = new THREE.Vector3();
 
+    var mirror = new THREE.Vector3();
+    mirror.x = 1;
+    mirror.y = 1;
+    mirror.z = 1;
+
     return function tick (time, delta) {
       if (this.currentStroke && this.active) {
         console.log("brush tick 2");
 
         this.obj.matrixWorld.decompose(position, rotation, scale);
         var pointerPosition = this.system.getPointerPosition(position, rotation);
+        TODO mirror
+        pointerPosition.x *= -1;
+        rotation = Utils.mirrorQuaternion(rotation, mirror); //TODO Check correctness
+        //TODO Does scale need to be mirrored?
         this.currentStroke.addPoint(position, rotation, pointerPosition, this.sizeModifier, time);
       }
     };

@@ -56,14 +56,13 @@
         this.object3D.add(mesh);
       },
       addPoint: (function () {
-        console.log("AddPoint rainbow");
-        
         var direction = new THREE.Vector3();
         var posA = new THREE.Vector3();
         var posB = new THREE.Vector3();
         var auxDir = new THREE.Vector3();
 
         return function (position, orientation, pointerPosition, pressure, timestamp) {
+          console.log("AddPoint rainbow");
           var uv = 0;
           for (i = 0; i < this.data.numPoints; i++) {
             this.uvs[uv++] = i / (this.data.numPoints - 1);

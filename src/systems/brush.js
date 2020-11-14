@@ -112,10 +112,8 @@ AFRAME.registerBrush = function (name, definition, options) {
       }
       if (addPointMethod.call(this, position, orientation, pointerPosition, pressure, timestamp)) {
         this.data.numPoints++;
-        // var storedPos = position.clone();
-        // storedPos.x *= -1;
         this.data.points.push({
-          'position': new THREE.Vector3(), // HOW DOES THIS STILL WORK?!?!?
+          'position': position.clone(),
           'orientation': orientation.clone(),
           'pressure': pressure,
           'timestamp': timestamp
