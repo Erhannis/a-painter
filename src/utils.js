@@ -49,17 +49,22 @@ window.Utils = (function() {
         n.y = q.y / sa;
         n.z = q.z / sa;
         // Project onto and past `dir`
-        n = n.clone().project(dir).sub(n).multiplyScalar(2).add(n);
+        n = n.clone().projectOnVector(dir).sub(n).multiplyScalar(2).add(n);
         q.x = n.x * sa;
         q.y = n.y * sa;
         q.z = n.z * sa;
         return q;
     }
 
+    function mirrorVector(v, dir) { //TODO I haven't actually verified this is correct
+        return v.clone().projectOnVector(dir).multiplyScalar(2).sub(v).negate();
+    }
+
     return {
         numberToFixed: numberToFixed,
         arrayNumbersToFixed: arrayNumbersToFixed,
         getTooltips: getTooltips,
-        mirrorQuaternion: mirrorQuaternion
+        mirrorQuaternion: mirrorQuaternion,
+        mirrorVector: mirrorVector
     }
 }());

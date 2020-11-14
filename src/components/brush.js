@@ -98,10 +98,11 @@ AFRAME.registerComponent('brush', {
 
         this.obj.matrixWorld.decompose(position, rotation, scale);
         var pointerPosition = this.system.getPointerPosition(position, rotation);
-        TODO mirror
-        pointerPosition.x *= -1;
+        position = Utils.mirrorVector(position, mirror); //TODO Check correctness
         rotation = Utils.mirrorQuaternion(rotation, mirror); //TODO Check correctness
+        pointerPosition = Utils.mirrorVector(pointerPosition, mirror); //TODO Check correctness
         //TODO Does scale need to be mirrored?
+        //scale = Utils.mirrorVector(scale, mirror); //TODO Check correctness
         this.currentStroke.addPoint(position, rotation, pointerPosition, this.sizeModifier, time);
       }
     };
