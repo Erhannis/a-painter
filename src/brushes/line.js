@@ -85,6 +85,8 @@ var onLoaded = require('../onloaded.js');
         posA.add(direction.clone().multiplyScalar(brushSize / 2));
         posB.add(direction.clone().multiplyScalar(-brushSize / 2));
 
+        var first = this.first;
+
         for (var i in symmetries) {
           var symmetry = symmetries[i];
           var buffer = this.buffers[i];
@@ -92,7 +94,7 @@ var onLoaded = require('../onloaded.js');
           var transB = posB.clone().applyMatrix4(symmetry);
           if (this.first && this.prevIdx.position > 0) {
             // Degenerated triangle
-            this.first = false;
+            first = false;
             buffer.addVertex(transA.x, transA.y, transA.z);
             buffer.idx.normal++;
             buffer.idx.color++;
@@ -136,6 +138,7 @@ var onLoaded = require('../onloaded.js');
 
           buffer.update();
         }
+        this.first = first;
 
         this.computeStripVertexNormals();
         return true;
