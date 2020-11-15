@@ -6,6 +6,11 @@ var onLoaded = require('../onloaded.js');
 
   var geometryManager = null;
 
+  var symmetries = [
+    new THREE.Matrix4(),
+    new THREE.Matrix4().compose(new THREE.Vector3(0,0,0.1), new THREE.Quaternion(), new THREE.Vector3(1,1,1))
+  ];
+
   onLoaded(function () {
     var optionsBasic = {
       vertexColors: THREE.VertexColors,
@@ -30,27 +35,38 @@ var onLoaded = require('../onloaded.js');
       alphaTest: 0.5
     };
 
-    sharedBufferGeometryManager.addSharedBuffer('strip-flat', new THREE.MeshBasicMaterial(optionsBasic), THREE.TriangleStripDrawMode);
-    sharedBufferGeometryManager.addSharedBuffer('strip-shaded', new THREE.MeshStandardMaterial(optionsStandard), THREE.TriangleStripDrawMode);
-    sharedBufferGeometryManager.addSharedBuffer('strip-textured', new THREE.MeshStandardMaterial(optionTextured), THREE.TriangleStripDrawMode);
+    for (var i in symmetries) {
+      sharedBufferGeometryManager.addSharedBuffer('strip-flat-'+i, new THREE.MeshBasicMaterial(optionsBasic), THREE.TriangleStripDrawMode);
+      sharedBufferGeometryManager.addSharedBuffer('strip-shaded-'+i, new THREE.MeshStandardMaterial(optionsStandard), THREE.TriangleStripDrawMode);
+      sharedBufferGeometryManager.addSharedBuffer('strip-textured-'+i, new THREE.MeshStandardMaterial(optionTextured), THREE.TriangleStripDrawMode);
+    }
   });
 
   var line = {
 
     init: function (color, brushSize) {
-      this.sharedBuffer = sharedBufferGeometryManager.getSharedBuffer('strip-' + this.materialOptions.type);
-      this.sharedBuffer.restartPrimitive();
+      this.buffers = [];
+      for (var i in symmetries) {
+        var buffer = sharedBufferGeometryManager.getSharedBuffer('strip-' + this.materialOptions.type + "-" + i);
+        buffer.restartPrimitive();
+        this.buffers.push(buffer);
+      }
+      console.log("line init getSharedBuffer strip-" + this.materialOptions.type);
 
-      this.prevIdx = Object.assign({}, this.sharedBuffer.idx);
-      this.idx = Object.assign({}, this.sharedBuffer.idx);
+      this.prevIdx = Object.assign({}, this.buffers[0].idx);
+      this.idx = Object.assign({}, this.buffers[0].idx);
 
       this.first = true;
     },
     remove: function () {
-      this.sharedBuffer.remove(this.prevIdx, this.idx);
+      this.buffers.forEach(buffer => {
+        buffer.remove(this.prevIdx, this.idx); //TODO May have concurrent modification bugs with idx
+      });
     },
     undo: function () {
-      this.sharedBuffer.undo(this.prevIdx);
+      this.buffers.forEach(buffer => {
+        buffer.undo(this.prevIdx); //TODO May have concurrent modification bugs with idx
+      });
     },
     addPoint: (function () {
       var direction = new THREE.Vector3();
@@ -69,51 +85,58 @@ var onLoaded = require('../onloaded.js');
         posA.add(direction.clone().multiplyScalar(brushSize / 2));
         posB.add(direction.clone().multiplyScalar(-brushSize / 2));
 
-        if (this.first && this.prevIdx.position > 0) {
-          // Degenerated triangle
-          this.first = false;
-          this.sharedBuffer.addVertex(posA.x, posA.y, posA.z);
-          this.sharedBuffer.idx.normal++;
-          this.sharedBuffer.idx.color++;
-          this.sharedBuffer.idx.uv++;
+        for (var i in symmetries) {
+          var symmetry = symmetries[i];
+          var buffer = this.buffers[i];
+          var transA = posA.clone().applyMatrix4(symmetry);
+          var transB = posB.clone().applyMatrix4(symmetry);
+          if (this.first && this.prevIdx.position > 0) {
+            // Degenerated triangle
+            this.first = false;
+            buffer.addVertex(transA.x, transA.y, transA.z);
+            buffer.idx.normal++;
+            buffer.idx.color++;
+            buffer.idx.uv++;
 
-          this.idx = Object.assign({}, this.sharedBuffer.idx);
-        }
-
-        /*
-          2---3
-          | \ |
-          0---1
-        */
-        this.sharedBuffer.addVertex(posA.x, posA.y, posA.z);
-        this.sharedBuffer.addVertex(posB.x, posB.y, posB.z);
-        this.sharedBuffer.idx.normal += 2;
-
-        this.sharedBuffer.addColor(this.data.color.r, this.data.color.g, this.data.color.b);
-        this.sharedBuffer.addColor(this.data.color.r, this.data.color.g, this.data.color.b);
-
-        if (this.materialOptions.type === 'textured') {
-          this.sharedBuffer.idx.uv += 2;
-          var uvs = this.sharedBuffer.current.attributes.uv.array;
-          var u, offset;
-          for (var i = 0; i < this.data.numPoints + 1; i++) {
-            u = i / this.data.numPoints;
-            offset = 4 * i;
-            if (this.prevIdx.uv !== 0) {
-              offset += (this.prevIdx.uv + 1) * 2;
-            }
-
-            uvs[offset] = converter.convertU(u);
-            uvs[offset + 1] = converter.convertV(0);
-
-            uvs[offset + 2] = converter.convertU(u);
-            uvs[offset + 3] = converter.convertV(1);
+            this.idx = Object.assign({}, this.buffers[0].idx); //TODO Might be problematic
           }
+
+          /*
+            2---3
+            | \ |
+            0---1
+          */
+          buffer.addVertex(transA.x, transA.y, transA.z);
+          buffer.addVertex(transB.x, transB.y, transB.z);
+          buffer.idx.normal += 2;
+
+          buffer.addColor(this.data.color.r, this.data.color.g, this.data.color.b);
+          buffer.addColor(this.data.color.r, this.data.color.g, this.data.color.b);
+
+          if (this.materialOptions.type === 'textured') {
+            buffer.idx.uv += 2;
+            var uvs = buffer.current.attributes.uv.array;
+            var u, offset;
+            for (var i = 0; i < this.data.numPoints + 1; i++) {
+              u = i / this.data.numPoints;
+              offset = 4 * i;
+              if (this.prevIdx.uv !== 0) { //TODO is this correct idx?
+                offset += (this.prevIdx.uv + 1) * 2;
+              }
+
+              uvs[offset] = converter.convertU(u);
+              uvs[offset + 1] = converter.convertV(0);
+
+              uvs[offset + 2] = converter.convertU(u);
+              uvs[offset + 3] = converter.convertV(1);
+            }
+          }
+
+          this.idx = Object.assign({}, this.buffers[0].idx); //TODO Might be problematic
+
+          buffer.update();
         }
 
-        this.idx = Object.assign({}, this.sharedBuffer.idx);
-
-        this.sharedBuffer.update();
         this.computeStripVertexNormals();
         return true;
       };
@@ -127,71 +150,73 @@ var onLoaded = require('../onloaded.js');
       var ab = new THREE.Vector3();
 
       return function () {
-        var start = this.prevIdx.position === 0 ? 0 : (this.prevIdx.position + 1) * 3;
-        var end = (this.idx.position) * 3;
-        var vertices = this.sharedBuffer.current.attributes.position.array;
-        var normals = this.sharedBuffer.current.attributes.normal.array;
+        this.buffers.forEach(buffer => {
+          var start = this.prevIdx.position === 0 ? 0 : (this.prevIdx.position + 1) * 3;
+          var end = (this.idx.position) * 3;
+          var vertices = buffer.current.attributes.position.array;
+          var normals = buffer.current.attributes.normal.array;
 
-        for (var i = start; i <= end; i++) {
-          normals[i] = 0;
-        }
-
-        var pair = true;
-        for (i = start; i < end - 6; i += 3) {
-          if (pair) {
-            pA.fromArray(vertices, i);
-            pB.fromArray(vertices, i + 3);
-            pC.fromArray(vertices, i + 6);
-          } else {
-            pB.fromArray(vertices, i);
-            pC.fromArray(vertices, i + 6);
-            pA.fromArray(vertices, i + 3);
+          for (var i = start; i <= end; i++) {
+            normals[i] = 0;
           }
-          pair = !pair;
-
-          cb.subVectors(pC, pB);
-          ab.subVectors(pA, pB);
-          cb.cross(ab);
-          cb.normalize();
-
-          normals[i] += cb.x;
-          normals[i + 1] += cb.y;
-          normals[i + 2] += cb.z;
-
-          normals[i + 3] += cb.x;
-          normals[i + 4] += cb.y;
-          normals[i + 5] += cb.z;
-
-          normals[i + 6] += cb.x;
-          normals[i + 7] += cb.y;
-          normals[i + 8] += cb.z;
-        }
-
-        /*
-        first and last vertice (0 and 8) belongs just to one triangle
-        second and penultimate (1 and 7) belongs to two triangles
-        the rest of the vertices belongs to three triangles
-
-          1_____3_____5_____7
-          /\    /\    /\    /\
-         /  \  /  \  /  \  /  \
-        /____\/____\/____\/____\
-        0    2     4     6     8
-        */
-
-        // Vertices that are shared across three triangles
-        for (i = start + 2 * 3; i < end - 2 * 3; i++) {
-          normals[i] = normals[i] / 3;
-        }
-
-        // Second and penultimate triangle, that shares just two triangles
-        normals[start + 3] = normals[start + 3] / 2;
-        normals[start + 3 + 1] = normals[start + 3 + 1] / 2;
-        normals[start + 3 + 2] = normals[start + 3 * 1 + 2] / 2;
-
-        normals[end - 2 * 3] = normals[end - 2 * 3] / 2;
-        normals[end - 2 * 3 + 1] = normals[end - 2 * 3 + 1] / 2;
-        normals[end - 2 * 3 + 2] = normals[end - 2 * 3 + 2] / 2;
+  
+          var pair = true;
+          for (i = start; i < end - 6; i += 3) {
+            if (pair) {
+              pA.fromArray(vertices, i);
+              pB.fromArray(vertices, i + 3);
+              pC.fromArray(vertices, i + 6);
+            } else {
+              pB.fromArray(vertices, i);
+              pC.fromArray(vertices, i + 6);
+              pA.fromArray(vertices, i + 3);
+            }
+            pair = !pair;
+  
+            cb.subVectors(pC, pB);
+            ab.subVectors(pA, pB);
+            cb.cross(ab);
+            cb.normalize();
+  
+            normals[i] += cb.x;
+            normals[i + 1] += cb.y;
+            normals[i + 2] += cb.z;
+  
+            normals[i + 3] += cb.x;
+            normals[i + 4] += cb.y;
+            normals[i + 5] += cb.z;
+  
+            normals[i + 6] += cb.x;
+            normals[i + 7] += cb.y;
+            normals[i + 8] += cb.z;
+          }
+  
+          /*
+          first and last vertice (0 and 8) belongs just to one triangle
+          second and penultimate (1 and 7) belongs to two triangles
+          the rest of the vertices belongs to three triangles
+  
+            1_____3_____5_____7
+            /\    /\    /\    /\
+           /  \  /  \  /  \  /  \
+          /____\/____\/____\/____\
+          0    2     4     6     8
+          */
+  
+          // Vertices that are shared across three triangles
+          for (i = start + 2 * 3; i < end - 2 * 3; i++) {
+            normals[i] = normals[i] / 3;
+          }
+  
+          // Second and penultimate triangle, that shares just two triangles
+          normals[start + 3] = normals[start + 3] / 2;
+          normals[start + 3 + 1] = normals[start + 3 + 1] / 2;
+          normals[start + 3 + 2] = normals[start + 3 * 1 + 2] / 2;
+  
+          normals[end - 2 * 3] = normals[end - 2 * 3] / 2;
+          normals[end - 2 * 3 + 1] = normals[end - 2 * 3 + 1] / 2;
+          normals[end - 2 * 3 + 2] = normals[end - 2 * 3 + 2] / 2;
+        });
       };
     })()
   };

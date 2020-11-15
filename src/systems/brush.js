@@ -169,7 +169,7 @@ AFRAME.registerSystem('brush', {
     if (targetStroke) {
       for (var i = this.strokes.length - 1; i > order; i--) {
         stroke = this.strokes[i];
-        if (targetStroke.sharedBuffer === stroke.sharedBuffer) {
+        if (targetStroke.mirrorBuffer === stroke.mirrorBuffer) {
           // Update idx and prevIdx
           console.log('>>>', stroke.prevIdx, '->', stroke.idx, 'target', targetStroke.prevIdx, '->', targetStroke.idx);
           for (key in targetStroke.idx) {
