@@ -50,27 +50,30 @@ var onLoaded = require('../onloaded.js');
 
     init: function (color, brushSize) {
       this.buffers = [];
+      this.idxs = [];
+      this.prevIdxs = [];
       for (var i in symmetries) {
         var buffer = sharedBufferGeometryManager.getSharedBuffer('strip-' + this.materialOptions.type + "-" + i);
         buffer.restartPrimitive();
         this.buffers.push(buffer);
-      }
-      console.log("line init getSharedBuffer strip-" + this.materialOptions.type);
 
-      this.prevIdx = Object.assign({}, this.buffers[0].idx);
-      this.idx = Object.assign({}, this.buffers[0].idx);
+        this.prevIdxs.push(Object.assign({}, this.buffers[i].idx));
+        this.idxs.push(Object.assign({}, this.buffers[i].idx));
+        }
 
       this.first = true;
     },
     remove: function () {
-      this.buffers.forEach(buffer => {
-        buffer.remove(this.prevIdx, this.idx); //TODO May have concurrent modification bugs with idx
-      });
+      for (var i in this.buffers) {
+        console.log("remove " + this.prevIdxs[i] + " - " + this.idxs[i]);
+        this.buffers[i].remove(this.prevIdxs[i], this.idxs[i]);
+      }
     },
     undo: function () {
-      this.buffers.forEach(buffer => {
-        buffer.undo(this.prevIdx); //TODO May have concurrent modification bugs with idx
-      });
+      for (var i in this.buffers) {
+        console.log("undo " + this.prevIdxs[i]);
+        this.buffers[i].undo(this.prevIdxs[i]);
+      }
     },
     addPoint: (function () {
       var direction = new THREE.Vector3();
@@ -96,7 +99,7 @@ var onLoaded = require('../onloaded.js');
           var buffer = this.buffers[i];
           var transA = posA.clone().applyMatrix4(symmetry);
           var transB = posB.clone().applyMatrix4(symmetry);
-          if (this.first && this.prevIdx.position > 0) {
+          if (this.first && this.prevIdxs[i].position > 0) {
             // Degenerated triangle
             first = false;
             buffer.addVertex(transA.x, transA.y, transA.z);
@@ -104,7 +107,7 @@ var onLoaded = require('../onloaded.js');
             buffer.idx.color++;
             buffer.idx.uv++;
 
-            this.idx = Object.assign({}, this.buffers[0].idx); //TODO Might be problematic
+            this.idxs[i] = Object.assign({}, buffer.idx);
           }
 
           /*
@@ -126,8 +129,8 @@ var onLoaded = require('../onloaded.js');
             for (var i = 0; i < this.data.numPoints + 1; i++) {
               u = i / this.data.numPoints;
               offset = 4 * i;
-              if (this.prevIdx.uv !== 0) { //TODO is this correct idx?
-                offset += (this.prevIdx.uv + 1) * 2;
+              if (this.prevIdxs[i].uv !== 0) { //TODO is this correct idx?
+                offset += (this.prevIdxs[i].uv + 1) * 2;
               }
 
               uvs[offset] = converter.convertU(u);
@@ -138,7 +141,7 @@ var onLoaded = require('../onloaded.js');
             }
           }
 
-          this.idx = Object.assign({}, this.buffers[0].idx); //TODO Might be problematic
+          this.idxs[i] = Object.assign({}, buffer.idx); //TODO Might be problematic
 
           buffer.update();
         }
@@ -157,9 +160,10 @@ var onLoaded = require('../onloaded.js');
       var ab = new THREE.Vector3();
 
       return function () {
-        this.buffers.forEach(buffer => {
-          var start = this.prevIdx.position === 0 ? 0 : (this.prevIdx.position + 1) * 3;
-          var end = (this.idx.position) * 3;
+        for (var i in symmetries) {
+          var buffer = this.buffers[i];
+          var start = this.prevIdxs[i].position === 0 ? 0 : (this.prevIdxs[i].position + 1) * 3;
+          var end = (this.idxs[i].position) * 3;
           var vertices = buffer.current.attributes.position.array;
           var normals = buffer.current.attributes.normal.array;
 
@@ -223,7 +227,7 @@ var onLoaded = require('../onloaded.js');
           normals[end - 2 * 3] = normals[end - 2 * 3] / 2;
           normals[end - 2 * 3 + 1] = normals[end - 2 * 3 + 1] / 2;
           normals[end - 2 * 3 + 2] = normals[end - 2 * 3 + 2] / 2;
-        });
+        }
       };
     })()
   };
