@@ -7,8 +7,12 @@ var onLoaded = require('../onloaded.js');
   var geometryManager = null;
 
   var symmetries = [
-    new THREE.Matrix4(),
-    new THREE.Matrix4().compose(new THREE.Vector3(0,0,0.1), new THREE.Quaternion(), new THREE.Vector3(1,1,1))
+    new THREE.Matrix4().compose(new THREE.Vector3(0,0,0), new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0), 0*2*Math.PI/3), new THREE.Vector3(1,1,1)),
+    new THREE.Matrix4().compose(new THREE.Vector3(0,0,0), new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0), 1*2*Math.PI/3), new THREE.Vector3(1,1,1)),
+    new THREE.Matrix4().compose(new THREE.Vector3(0,0,0), new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0), 2*2*Math.PI/3), new THREE.Vector3(1,1,1)),
+    new THREE.Matrix4().compose(new THREE.Vector3(0,1,0), new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0), 0.5*2*Math.PI/3), new THREE.Vector3(1,-1,1)),
+    new THREE.Matrix4().compose(new THREE.Vector3(0,1,0), new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0), 1.5*2*Math.PI/3), new THREE.Vector3(1,-1,1)),
+    new THREE.Matrix4().compose(new THREE.Vector3(0,1,0), new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0), 2.5*2*Math.PI/3), new THREE.Vector3(1,-1,1)),
   ];
 
   onLoaded(function () {
