@@ -6,14 +6,79 @@ var onLoaded = require('../onloaded.js');
 
   var geometryManager = null;
 
+  // var symmetries = [
+  //   new THREE.Matrix4().compose(new THREE.Vector3(0,0,0), new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0), 0*2*Math.PI/3), new THREE.Vector3(1,1,1)),
+  //   new THREE.Matrix4().compose(new THREE.Vector3(0,0,0), new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0), 1*2*Math.PI/3), new THREE.Vector3(1,1,1)),
+  //   new THREE.Matrix4().compose(new THREE.Vector3(0,0,0), new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0), 2*2*Math.PI/3), new THREE.Vector3(1,1,1)),
+  //   new THREE.Matrix4().compose(new THREE.Vector3(0,1,0), new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0), 0.5*2*Math.PI/3), new THREE.Vector3(1,-1,1)),
+  //   new THREE.Matrix4().compose(new THREE.Vector3(0,1,0), new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0), 1.5*2*Math.PI/3), new THREE.Vector3(1,-1,1)),
+  //   new THREE.Matrix4().compose(new THREE.Vector3(0,1,0), new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0), 2.5*2*Math.PI/3), new THREE.Vector3(1,-1,1)),
+  // ];
   var symmetries = [
-    new THREE.Matrix4().compose(new THREE.Vector3(0,0,0), new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0), 0*2*Math.PI/3), new THREE.Vector3(1,1,1)),
-    new THREE.Matrix4().compose(new THREE.Vector3(0,0,0), new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0), 1*2*Math.PI/3), new THREE.Vector3(1,1,1)),
-    new THREE.Matrix4().compose(new THREE.Vector3(0,0,0), new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0), 2*2*Math.PI/3), new THREE.Vector3(1,1,1)),
-    new THREE.Matrix4().compose(new THREE.Vector3(0,1,0), new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0), 0.5*2*Math.PI/3), new THREE.Vector3(1,-1,1)),
-    new THREE.Matrix4().compose(new THREE.Vector3(0,1,0), new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0), 1.5*2*Math.PI/3), new THREE.Vector3(1,-1,1)),
-    new THREE.Matrix4().compose(new THREE.Vector3(0,1,0), new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0), 2.5*2*Math.PI/3), new THREE.Vector3(1,-1,1)),
-  ];
+    new THREE.Matrix3().set(
+      0.9259428461995696, 0.2149776895326064, 0.3105067448141228,
+      0.3756218206548338, -0.4388461146315772, -0.8162856947911782,
+      -0.03921853413614937, 0.8724670083596234, -0.4870967315679924),
+       new THREE.Matrix3().set(
+      -0.07193798232053036, -0.941832207152877, 0.3282941063576866,
+      -0.25430098340885227, 0.3355883905090533, 0.9070344216141051,
+      -0.9644459220386293, -0.018235287907901992, -0.26365040818852203),
+       new THREE.Matrix3().set(
+      -0.1671458376140611, 0.11831614614641599, -0.9788072121359517,
+      0.11831614614641617, -0.9831918827194945, -0.139050391281563,
+      -0.9788072121359518, -0.13905039128156305, 0.15033772033355544),
+       new THREE.Matrix3().set(
+      -0.42074646176030184, -0.805600957596985, 0.4171085135009922,
+      0.8718409321823114, -0.4861591850328685, -0.05952004519197778,
+      0.2507305403967867, 0.33860942681354533, 0.9069056467931695),
+       new THREE.Matrix3().set(
+      0.9259428461995691, 0.37562182065483435, -0.03921853413615024,
+      0.21497768953260737, -0.43884611463157686, 0.8724670083596233,
+      0.3105067448141228, -0.8162856947911781, -0.4870967315679923),
+       new THREE.Matrix3().set(
+      1.0, 0.0, 0.0,
+      0.0, 1.0, 0.0,
+      0.0, 0.0, 1.0),
+       new THREE.Matrix3().set(
+      -0.07193798232053182, -0.25430098340885277, -0.9644459220386292,
+      -0.9418322071528762, 0.33558839050905526, -0.018235287907901406,
+      0.32829410635768824, 0.9070344216141044, -0.26365040818852264),
+       new THREE.Matrix3().set(
+      -0.4332584021187363, 0.684280120351005, 0.5865559426737865,
+      -0.14498641456204162, 0.5894169091553918, -0.7947116752597445,
+      -0.8895313915685971, -0.4293581536364715, -0.15615850703665476),
+       new THREE.Matrix3().set(
+      -0.7085468592198082, 0.6269971648922046, 0.3237837295277253,
+      0.626997164892205, 0.3488461429185622, 0.6965492974570998,
+      0.3237837295277244, 0.6965492974571003, -0.6402992836987543),
+       new THREE.Matrix3().set(
+      -0.43325840211873734, -0.14498641456204128, -0.8895313915685956,
+      0.6842801203510042, 0.589416909155391, -0.42935815363647223,
+      0.5865559426737859, -0.7947116752597441, -0.15615850703665543),
+       new THREE.Matrix3().set(
+      -0.12430730316613264, -0.7453133110386223, 0.6550234826082263,
+      -0.7453133110386222, -0.3656542601990667, -0.5574989061755363,
+      0.6550234826082263, -0.5574989061755361, -0.5100384366348008),
+       new THREE.Matrix3().set(
+      -0.4207464617603007, 0.8718409321823125, 0.25073054039678594,
+      -0.8056009575969859, -0.48615918503286715, 0.33860942681354594,
+      0.417108513500992, -0.05952004519197761, 0.90690564679317)
+          ];
+  for (var i in symmetries) {
+    var m4 = new THREE.Matrix4();
+    var s = 0;
+    var t = 0;
+    symmetries[i] = symmetries[i].transpose();
+    for (var j = 0; j < 3; j++) {
+      for (var k = 0; k < 3; k++) {
+        m4.elements[t+k] = symmetries[i].elements[s+k];
+      }
+      s+=3;
+      t+=4;
+    }
+    var dy = 1;
+    symmetries[i] = new THREE.Matrix4().makeTranslation(0,dy,0).multiply(m4).multiply(new THREE.Matrix4().makeTranslation(0,-dy,0));
+  }
 
   onLoaded(function () {
     var optionsBasic = {
