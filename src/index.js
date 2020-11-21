@@ -7,3 +7,8 @@ require('./components/json-model.js');
 require('./components/paint-controls.js');
 require('./components/ui.js');
 require('./components/ui-raycaster.js');
+
+require('./components/hand-menu.js');
+var json = require('../examples/hand_ui.json');
+console.log("loaded json");
+console.log(json);

@@ -31,21 +31,29 @@ AFRAME.registerComponent('ui', {
     this.cursorOffset = new THREE.Vector3(0.06409, 0.01419, -0.10242);
 
     // UI entity setup
-    uiEl.setAttribute('material', {
-      color: '#ffffff',
+    uiEl.setAttribute('material', { //TODO
+      color: "#FFFFFF",
       flatShading: true,
       shader: 'flat',
       transparent: true,
       fog: false,
-      src: '#uinormal'
+      src: 'shader:flat'
     });
-    uiEl.setAttribute('obj-model', 'obj:#uiobj');
+    uiEl.setAttribute('obj-model', 'obj:#uiobj'); //TODO
     uiEl.setAttribute('position', '0 0.04 -0.15');
 
     uiEl.setAttribute('scale', '0 0 0');
     uiEl.setAttribute('visible', false);
     uiEl.classList.add('apainter-ui');
     el.appendChild(uiEl);
+    {
+      var plane = document.createElement('a-plane');
+      plane.setAttribute('width', 0.5);
+      plane.setAttribute('height', 0.5);
+      plane.setAttribute('color', '#909090');
+      plane.setAttribute('rotation', '-90 0 0');
+      uiEl.appendChild(plane);
+    }
 
     // Ray entity setup
     rayEl.setAttribute('line', '');
@@ -94,7 +102,7 @@ AFRAME.registerComponent('ui', {
     });
   },
 
-  initColorWheel: function () {
+  initColorWheel: function () { //TODO Extract
     var colorWheel = this.objects.hueWheel;
 
     var vertexShader = '\
