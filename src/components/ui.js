@@ -591,7 +591,7 @@ AFRAME.registerComponent('ui', {
   initBrushesMenu: function () {
     var previousPage = this.objects.previousPage;
     var nextPage = this.objects.nextPage;
-    var brushes = Object.keys(AFRAME.BRUSHES);
+    var brushes = [0,0,0,0,0];//TODO Pass in buttons etc
     this.initHighlightMaterial(nextPage);
     this.initHighlightMaterial(previousPage);
     previousPage.visible = false;
@@ -620,7 +620,7 @@ AFRAME.registerComponent('ui', {
       var brush;
       var brushNum = 0;
       var uiEl = this.uiEl.getObject3D('mesh');
-      var brushes = Object.keys(AFRAME.BRUSHES);
+      var brushes = [0,0,0,0,0]; //TODO Pass in
       var thumbnail;
       var brushIndex;
       var self = this;
@@ -639,7 +639,7 @@ AFRAME.registerComponent('ui', {
       for (i = 0; i < pageSize; i++) {
         brushIndex = page * pageSize + i;
         brush = brushes[brushIndex];
-        thumbnail = brush && AFRAME.BRUSHES[brush].prototype.options.thumbnail;
+        thumbnail = brush && brushes[brush].prototype.options.thumbnail; //TODO Conversion
         loadBrush(brush, brushNum, thumbnail);
         brushNum += 1;
       }
@@ -765,7 +765,7 @@ AFRAME.registerComponent('ui', {
 
   onIntersection: function (evt) {
     var visible = this.closed && this.system.opened;
-    if (this.el.components.brush.active) { return; }
+    //if (this.el.components.brush.active) { return; } //TODO
     this.rayEl.setAttribute('visible', !!visible);
     this.el.setAttribute('brush', 'enabled', false);
   },
@@ -823,14 +823,7 @@ AFRAME.registerComponent('ui', {
   },
 
   updateColorHistory: function () {
-    var color = this.handEl && this.handEl.getAttribute('brush').color;
-    var colorStack = this.colorStack;
-    if (!color) { color = this.el.components.brush.schema.color.default; }
-    this.objects.currentColor.material.color.set(color);
-    for (var i = 0; i < colorStack.length; i++) {
-      color = colorStack[colorStack.length - i - 1];
-      this.objects.colorHistory[i].material.color.set(color);
-    }
+    console.log("updateColorHistory");
   },
 
   updateSizeSlider: function (size) {
@@ -838,7 +831,7 @@ AFRAME.registerComponent('ui', {
     var sliderBoundingBox = slider.geometry.boundingBox;
     var cursor = this.objects.sizeCursor;
     var sliderWidth = sliderBoundingBox.max.x - sliderBoundingBox.min.x;
-    var normalizedSize = size / AFRAME.components.brush.schema.size.max;
+    var normalizedSize = size / 10; //TODO
     var positionX = normalizedSize * sliderWidth;
     cursor.position.setX(positionX - this.cursorOffset.x);
 

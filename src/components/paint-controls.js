@@ -25,7 +25,8 @@ AFRAME.registerComponent('paint-controls', {
       if (evt.detail.axis[0] === 0 && evt.detail.axis[1] === 0 || self.previousAxis === evt.detail.axis[1]) { return; }
 
       var delta = evt.detail.axis[1] / 300;
-      var size = el.components.brush.schema.size;
+      //var size = el.components.brush.schema.size;
+      var size = 0.1; //TODO
       var value = THREE.Math.clamp(self.el.getAttribute('brush').size - delta, size.min, size.max);
 
       self.el.setAttribute('brush', 'size', value);
@@ -45,7 +46,8 @@ AFRAME.registerComponent('paint-controls', {
       self.startAxis = currentAxis;
 
       var startValue = self.el.getAttribute('brush').size;
-      var size = el.components.brush.schema.size;
+      //var size = el.components.brush.schema.size;
+      var size = 0.1; //TODO
       var value = THREE.Math.clamp(startValue - delta, size.min, size.max);
 
       self.el.setAttribute('brush', 'size', value);
@@ -192,8 +194,9 @@ AFRAME.registerComponent('paint-controls', {
 
     this.modelLoaded = true;
 
-    this.changeBrushSize(this.el.components.brush.data.size);
-    this.changeBrushColor(this.el.components.brush.color);
+    //this.changeBrushSize(this.el.components.brush.data.size);
+    //this.changeBrushColor(this.el.components.brush.color);
+    this.changeBrushSize(0.1); //TODO
   },
 
   onButtonEvent: function (id, evtName) {
