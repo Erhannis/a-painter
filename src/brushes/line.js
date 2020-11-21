@@ -76,6 +76,7 @@ var onLoaded = require('../onloaded.js');
   var line = {
 
     init: function (color, brushSize) {
+
       this.buffers = [];
       this.idxs = [];
       this.prevIdxs = [];
@@ -106,7 +107,7 @@ var onLoaded = require('../onloaded.js');
       var direction = new THREE.Vector3();
 
       return function (position, orientation, pointerPosition, pressure, timestamp) {
-        console.log("AddPoint line");
+        //console.log("AddPoint line");
         var converter = this.materialOptions.converter;
 
         direction.set(1, 0, 0);

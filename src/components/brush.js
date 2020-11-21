@@ -67,7 +67,7 @@ AFRAME.registerComponent('brush', {
     });
   },
   update: function (oldData) {
-    console.log("brush update");
+    //console.log("brush update");
 
     var data = this.data;
     if (oldData.color !== data.color) {
