@@ -701,6 +701,7 @@ AFRAME.registerComponent('ui', {
   },
 
   initHighlightMaterial: function (object) {
+    console.log("initHighlightMaterial");
     var buttonName = object.name;
     var isBrushButton = this.brushRegexp.test(buttonName);
     var isHistory = buttonName.indexOf('history') !== -1;
@@ -714,11 +715,14 @@ AFRAME.registerComponent('ui', {
     if (!isBrushButton && !isHistory && !isHue) {
       materials.normal = object.material;
       materials.hover = object.material.clone();
-      materials.hover.map = this.system.hoverTexture;
+      materials.hover.color = '#FF0000'; //TODO Optionize
+      //materials.hover.map = this.system.hoverTexture;
       materials.selected = object.material.clone();
-      materials.selected.map = this.system.pressedTexture;
+      materials.selected.color = '#BBBBBB';
+      //materials.selected.map = this.system.pressedTexture;
       materials.pressed = object.material.clone();
-      materials.pressed.map = this.system.pressedTexture;
+      materials.selected.color = '#DDDDDD';
+      //materials.pressed.map = this.system.pressedTexture;
     }
     this.highlightMaterials[buttonName] = materials;
   },
@@ -792,14 +796,12 @@ AFRAME.registerComponent('ui', {
   addHandListeners: function () {
     var handEl = this.handEl;
     handEl.addEventListener('componentchanged', this.onComponentChanged);
-    handEl.addEventListener('stroke-started', this.onStrokeStarted);
     handEl.addEventListener('triggerchanged', this.onTriggerChanged);
   },
 
   removeHandListeners: function () {
     var handEl = this.handEl;
     handEl.removeEventListener('componentchanged', this.onComponentChanged);
-    handEl.removeEventListener('stroke-started', this.onStrokeStarted);
     handEl.removeEventListener('triggerchanged', this.onTriggerChanged);
   },
 
@@ -884,7 +886,7 @@ AFRAME.registerComponent('ui', {
     this.handEl.removeEventListener('triggerchanged', this.onTriggerChanged);
   },
 
-  onStrokeStarted: function () {
+  onStrokeStarted: function () { //TODO This function is no longer used; extract the color code
     var color;
     var colorStack = this.colorStack;
     if (!this.colorHasChanged) { return; }
