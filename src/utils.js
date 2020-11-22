@@ -31,6 +31,10 @@ window.Utils = (function() {
                 tooltipName = '.vive-tooltips';
                 break;
             }
+            case 'gearvr-controls': {
+                tooltipName = '.vive-tooltips';
+                break;
+            }
             default: {
                 break;
             }

@@ -67196,6 +67196,7 @@ module.exports.Component = registerComponent('hand-controls', {
         mesh.rotation.set(0, 0, 0);
         // hidden by default
         mesh.visible = false;
+        el.setAttribute('gearvr-controls', controlConfiguration);
         el.setAttribute('vive-controls', controlConfiguration);
         el.setAttribute('oculus-touch-controls', controlConfiguration);
         el.setAttribute('windows-motion-controls', controlConfiguration);

@@ -392,6 +392,10 @@ AFRAME.registerSystem('brush', {
   getPointerPosition: (function () {
     var pointerPosition = new THREE.Vector3();
     var controllerOffset = {
+      'gearvr-controls': {
+        vec: new THREE.Vector3(0, 0.7, 1),
+        mult: -0.03
+      },
       'vive-controls': {
         vec: new THREE.Vector3(0, 0.7, 1),
         mult: -0.03

@@ -14,6 +14,16 @@ AFRAME.registerSystem('painter', {
             'trigger.changed': 'paint'
           },
 
+          'gearvr-controls': {
+            'axis.move': 'changeBrushSizeInc',
+            'trackpad.touchstart': 'startChangeBrushSize',
+            'menu.down': 'toggleMenu',
+
+            // Teleport
+            'trackpad.down': 'aim',
+            'trackpad.up': 'teleport'
+          },
+
           'vive-controls': {
             'axis.move': 'changeBrushSizeInc',
             'trackpad.touchstart': 'startChangeBrushSize',

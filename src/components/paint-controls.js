@@ -81,6 +81,8 @@ AFRAME.registerComponent('paint-controls', {
         el.setAttribute('obj-model', {obj: 'assets/models/oculus-' + hand + '-controller.obj', mtl: 'https://cdn.aframe.io/controllers/oculus/oculus-touch-controller-' + hand + '.mtl'});
       } else if (controllerName === 'vive-controls') {
         el.setAttribute('json-model', {src: 'assets/models/controller_vive.json'});
+      } else if (controllerName === 'gearvr-controls') {
+        el.setAttribute('json-model', {src: 'assets/models/controller_vive.json'});
       } else { return; }
 
       if (!!tooltips) {
@@ -168,6 +170,7 @@ AFRAME.registerComponent('paint-controls', {
   update: function () {
     var data = this.data;
     var el = this.el;
+    el.setAttribute('gearvr-controls', {hand: data.hand, model: false});
     el.setAttribute('vive-controls', {hand: data.hand, model: false});
     el.setAttribute('oculus-touch-controls', {hand: data.hand, model: false});
     el.setAttribute('windows-motion-controls', {hand: data.hand});
