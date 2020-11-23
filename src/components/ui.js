@@ -7,10 +7,6 @@ AFRAME.registerComponent('ui', {
     var el = this.el;
     var uiEl = this.uiEl = document.createElement('a-entity');
     var rayEl = this.rayEl = document.createElement('a-entity');
-    //TODO Would it be better to store the callbacks on the buttons themselves?  Maybe so
-    this.btnDownCallbacks = {};
-    this.btnHoldCallbacks = {}; //TODO Should the first down also call a hold?  Let's say no, for now
-    this.btnUpCallbacks = {};
     this.closed = true;
     this.isTooltipPaused = false;
     this.colorStack = ['#272727', '#727272', '#FFFFFF', '#24CAFF', '#249F90', '#F2E646', '#EF2D5E'];
@@ -50,14 +46,72 @@ AFRAME.registerComponent('ui', {
     uiEl.setAttribute('visible', false);
     uiEl.classList.add('apainter-ui');
     el.appendChild(uiEl);
+
+    //TODO Hmm, do I shrink/rotate the root element, or every leaf element?  ...One root, I think.
+    var buttons = document.createElement('a-entity');
+    buttons.setAttribute('rotation', '-90 0 0');
+    buttons.setAttribute('scale', '0.05 0.05 0.05');
     {
       var plane = document.createElement('a-plane');
-      plane.setAttribute('width', 0.5);
-      plane.setAttribute('height', 0.5);
+      plane.setAttribute('width', 0.9);
+      plane.setAttribute('height', 0.9);
       plane.setAttribute('color', '#909090');
-      plane.setAttribute('rotation', '-90 0 0');
-      uiEl.appendChild(plane);
+      plane.setAttribute('position', '0 0 0');
+      var t = this;
+      plane.oncontrollerdown = function(object, position) {
+        t.playSound('sound0');
+      };
+      // Note that oncontrollerhold is NOT called the first time - it's down, THEN hold (many times), THEN up.
+      plane.oncontrollerhold = null;
+      plane.oncontrollerup = null;
+      buttons.appendChild(plane);
     }
+    {
+      var plane = document.createElement('a-plane');
+      plane.setAttribute('width', 0.9);
+      plane.setAttribute('height', 0.9);
+      plane.setAttribute('color', '#909090');
+      plane.setAttribute('position', '1 0 0');
+      var t = this;
+      plane.oncontrollerdown = function(object, position) {
+        t.playSound('sound1');
+      };
+      // Note that oncontrollerhold is NOT called the first time - it's down, THEN hold (many times), THEN up.
+      plane.oncontrollerhold = null;
+      plane.oncontrollerup = null;
+      buttons.appendChild(plane);
+    }
+    {
+      var plane = document.createElement('a-plane');
+      plane.setAttribute('width', 0.9);
+      plane.setAttribute('height', 0.9);
+      plane.setAttribute('color', '#909090');
+      plane.setAttribute('position', '0 1 0');
+      var t = this;
+      plane.oncontrollerdown = function(object, position) {
+        t.playSound('sound2');
+      };
+      // Note that oncontrollerhold is NOT called the first time - it's down, THEN hold (many times), THEN up.
+      plane.oncontrollerhold = null;
+      plane.oncontrollerup = null;
+      buttons.appendChild(plane);
+    }
+    {
+      var plane = document.createElement('a-plane');
+      plane.setAttribute('width', 0.9);
+      plane.setAttribute('height', 0.9);
+      plane.setAttribute('color', '#909090');
+      plane.setAttribute('position', '2 2 0');
+      var t = this;
+      plane.oncontrollerdown = function(object, position) {
+        t.playSound('sound3');
+      };
+      // Note that oncontrollerhold is NOT called the first time - it's down, THEN hold (many times), THEN up.
+      plane.oncontrollerhold = null;
+      plane.oncontrollerup = null;
+      buttons.appendChild(plane);
+    }
+    uiEl.appendChild(buttons);
 
     // Ray entity setup
     rayEl.setAttribute('line', '');
@@ -182,42 +236,43 @@ AFRAME.registerComponent('ui', {
   },
 
   testInitCallbacks: function() {
-    this.btnHoldCallbacks['brightness'] = function(object, position) {
-      this.onBrightnessDown(position);
+    var t = this;
+
+    var model = this.uiEl.getObject3D('mesh');
+    this.objects.clearButton = model.getObjectByName('clear');
+    this.objects.copyButton = model.getObjectByName('copy');
+    this.objects.saveButton = model.getObjectByName('save');
+
+    this.objects.brightnessSlider.el.oncontrollerdown = function(object, position) {
+      t.onBrightnessDown(position);
     };
-    this.btnDownCallbacks['brightness'] = this.btnHoldCallbacks['brightness'];
-    this.btnDownCallbacks['brushnext'] = function(object, position) {
-      this.nextPage();
+    this.objects.brightnessSlider.el.oncontrollerhold = this.objects.brightnessSlider.el.oncontrollerdown;
+    this.objects.nextPage.el.oncontrollerdown = function(object, position) {
+      t.nextPage();
     };
-    this.btnDownCallbacks['brushprev'] = function(object, position) {
-      this.previousPage();
+    this.objects.previousPage.el.oncontrollerdown = function(object, position) {
+      t.previousPage();
     };
-    this.btnDownCallbacks['clear'] = function(object, position) {
-      this.el.sceneEl.systems.brush.clear();
-      this.playSound('ui_click1');
+    this.objects.clearButton.el.oncontrollerdown = function(object, position) {
+      t.el.sceneEl.systems.brush.clear();
+      t.playSound('ui_click1');
     };
-    this.btnDownCallbacks['copy'] = function(object, position) {
-      this.copyBrush();
-      this.playSound('ui_click1');
+    this.objects.copyButton.el.oncontrollerdown = function(object, position) {
+      t.copyBrush();
+      t.playSound('ui_click1');
     };
-    this.btnHoldCallbacks['hue'] = function(object, position) {
-      this.onHueDown(position);
+    this.objects.hueWheel.el.oncontrollerdown = function(object, position) {
+      t.onHueDown(position);
     };
-    this.btnDownCallbacks['hue'] = this.btnHoldCallbacks['hue'];
-    this.btnDownCallbacks['save'] = function(object, position) {
-      this.el.sceneEl.systems.painter.upload();
-      this.playSound('ui_click1');
+    this.objects.hueWheel.el.oncontrollerhold = this.objects.hueWheel.el.oncontrollerdown;
+    this.objects.saveButton.el.oncontrollerdown = function(object, position) {
+      t.el.sceneEl.systems.painter.upload();
+      t.playSound('ui_click1');
     };
-    this.btnHoldCallbacks['sizebg'] = function(object, position) {
-      this.onBrushSizeBackgroundDown(position);
+    this.objects.sizeSlider.el.oncontrollerdown = function(object, position) {
+      t.onBrushSizeBackgroundDown(position);
     };
-    this.btnDownCallbacks['sizebg'] = this.btnHoldCallbacks['sizebg'];
-    this.btnDownCallbacks['brightness'] = function(object, position) {
-    };
-    this.btnDownCallbacks['brightness'] = function(object, position) {
-    };
-    this.btnDownCallbacks['brightness'] = function(object, position) {
-    };
+    this.objects.sizeSlider.el.oncontrollerhold = this.objects.sizeSlider.el.oncontrollerdown;
   },
 
   handleButtonDown: function (object, position) {
@@ -226,9 +281,9 @@ AFRAME.registerComponent('ui', {
     this.activeWidget = undefined;
     var callback;
     if (this.pressedObjects[name]) {
-      callback = this.btnHoldCallbacks[name];
+      callback = object.el.oncontrollerhold;
     } else {
-      callback = this.btnDownCallbacks[name];
+      callback = object.el.oncontrollerdown;
     }
     if (callback) {
       callback(object, position);
@@ -262,6 +317,10 @@ AFRAME.registerComponent('ui', {
     var unpressedObjects = this.unpressedObjects;
     this.activeWidget = undefined;
     Object.keys(pressedObjects).forEach(function (key) {
+      var callback = pressedObjects[key].el.oncontrollerup;
+      if (callback) {
+        callback(pressedObjects[key]);
+      }
       var buttonName = pressedObjects[key].name;
       switch (true) {
         case buttonName === 'size': {
@@ -601,6 +660,8 @@ AFRAME.registerComponent('ui', {
     this.setCursorTransparency();
     this.updateColorUI(this.el.getAttribute('brush').color);
     this.updateSizeSlider(this.el.getAttribute('brush').size);
+
+    this.testInitCallbacks();
   },
 
   initBrushesMenu: function () {
@@ -719,7 +780,7 @@ AFRAME.registerComponent('ui', {
       pressed: object.material,
       selected: object.material
     };
-    if (!isBrushButton && !isHistory && !isHue) {
+    if (!isBrushButton && !isHistory && !isHue) { //TODO
       materials.normal = object.material;
       materials.hover = object.material.clone();
       materials.hover.color = [1,0,0]; //TODO Optionize
@@ -839,8 +900,8 @@ AFRAME.registerComponent('ui', {
     this.updateColorHistory();
   },
 
-  updateColorHistory: function () {
-    console.log("updateColorHistory");
+  updateColorHistory: function () { //TODO
+    //console.log("updateColorHistory");
   },
 
   updateSizeSlider: function (size) {
@@ -955,8 +1016,12 @@ AFRAME.registerComponent('ui', {
   },
 
   playSound: function (sound, objName) {
+    console.log("maybe playing " + sound);
     if (objName === undefined || !this.pressedObjects[objName]) {
+      console.log("playing " + sound);
       document.getElementById(sound).play();
+    } else {
+      console.log("not playing " + sound);
     }
   }
 });
