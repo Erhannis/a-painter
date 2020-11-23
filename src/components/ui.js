@@ -7,6 +7,10 @@ AFRAME.registerComponent('ui', {
     var el = this.el;
     var uiEl = this.uiEl = document.createElement('a-entity');
     var rayEl = this.rayEl = document.createElement('a-entity');
+    //TODO Would it be better to store the callbacks on the buttons themselves?  Maybe so
+    this.btnDownCallbacks = {};
+    this.btnHoldCallbacks = {}; //TODO Should the first down also call a hold?  Let's say no, for now
+    this.btnUpCallbacks = {};
     this.closed = true;
     this.isTooltipPaused = false;
     this.colorStack = ['#272727', '#727272', '#FFFFFF', '#24CAFF', '#249F90', '#F2E646', '#EF2D5E'];
@@ -177,66 +181,69 @@ AFRAME.registerComponent('ui', {
     }
   },
 
+  testInitCallbacks: function() {
+    this.btnHoldCallbacks['brightness'] = function(object, position) {
+      this.onBrightnessDown(position);
+    };
+    this.btnDownCallbacks['brightness'] = this.btnHoldCallbacks['brightness'];
+    this.btnDownCallbacks['brushnext'] = function(object, position) {
+      this.nextPage();
+    };
+    this.btnDownCallbacks['brushprev'] = function(object, position) {
+      this.previousPage();
+    };
+    this.btnDownCallbacks['clear'] = function(object, position) {
+      this.el.sceneEl.systems.brush.clear();
+      this.playSound('ui_click1');
+    };
+    this.btnDownCallbacks['copy'] = function(object, position) {
+      this.copyBrush();
+      this.playSound('ui_click1');
+    };
+    this.btnHoldCallbacks['hue'] = function(object, position) {
+      this.onHueDown(position);
+    };
+    this.btnDownCallbacks['hue'] = this.btnHoldCallbacks['hue'];
+    this.btnDownCallbacks['save'] = function(object, position) {
+      this.el.sceneEl.systems.painter.upload();
+      this.playSound('ui_click1');
+    };
+    this.btnHoldCallbacks['sizebg'] = function(object, position) {
+      this.onBrushSizeBackgroundDown(position);
+    };
+    this.btnDownCallbacks['sizebg'] = this.btnHoldCallbacks['sizebg'];
+    this.btnDownCallbacks['brightness'] = function(object, position) {
+    };
+    this.btnDownCallbacks['brightness'] = function(object, position) {
+    };
+    this.btnDownCallbacks['brightness'] = function(object, position) {
+    };
+  },
+
   handleButtonDown: function (object, position) {
     var name = object.name;
-    if (this.activeWidget && this.activeWidget !== name) { return; }
-    this.activeWidget = name;
+    if (this.activeWidget && this.activeWidget !== name) { return; } //TODO What is this?
+    this.activeWidget = undefined;
+    var callback;
+    if (this.pressedObjects[name]) {
+      callback = this.btnHoldCallbacks[name];
+    } else {
+      callback = this.btnDownCallbacks[name];
+    }
+    if (callback) {
+      callback(object, position);
+      this.activeWidget = name; //TODO Should this not be in the if-block?
+    }
     switch (true) {
-      case name === 'brightness': {
-        this.onBrightnessDown(position);
-        break;
-      }
-      case name === 'brushnext': {
-        if (!this.pressedObjects[name]) {
-          this.nextPage();
-        }
-        break;
-      }
-      case name === 'brushprev': {
-        if (!this.pressedObjects[name]) {
-          this.previousPage();
-        }
-        break;
-      }
-      case name === 'clear': {
-        if (!this.pressedObjects[name]) {
-          this.el.sceneEl.systems.brush.clear();
-          this.playSound('ui_click1');
-        }
-        break;
-      }
-      case name === 'copy': {
-        if (!this.pressedObjects[name]) {
-          this.copyBrush();
-          this.playSound('ui_click1');
-        }
-        break;
-      }
-      case name === 'hue': {
-        this.onHueDown(position);
-        break;
-      }
-      case name === 'save': {
-        if (!this.pressedObjects[name]) {
-          this.el.sceneEl.systems.painter.upload();
-          this.playSound('ui_click1');
-        }
-        break;
-      }
-      case name === 'sizebg': {
-        this.onBrushSizeBackgroundDown(position);
-        break;
-      }
-      case this.brushRegexp.test(name): {
+      case this.brushRegexp.test(name): { //TODO HMMM.  Not sure if I can nicely convert that.
         this.onBrushDown(name);
+        this.activeWidget = name;
         break;
       }
       case this.colorHistoryRegexp.test(name): {
         this.onColorHistoryButtonDown(object);
+        this.activeWidget = name;
         break;
-      }
-      default: {
-        this.activeWidget = undefined;
       }
     }
     this.pressedObjects[name] = object;
