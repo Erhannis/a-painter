@@ -117,20 +117,34 @@ AFRAME.registerComponent('ui', {
 
     {
       let UI = HandMenu;
+      // let handUi = UI.UiRoot(
+      //   UI.FoldLayout(
+      //     UI.GridLayout({cols:4},
+      //       UI.UiButton({oncontrollerdown:(function(){this.setAttribute('color', '#88CCAA');}),size:[3,3]}),
+      //       UI.UiButton({oncontrollerdown:(function(){this.setAttribute('visible', false);}),size:[1,2]}),
+      //       UI.UiButton()
+      //     ),
+      //     UI.RowsLayout(),
+      //     UI.UiTabs( //TODO Icons, labels
+      //       UI.GridLayout({rows:4}),
+      //       UI.UiButton()
+      //     )
+      //   )
+      // );
+      
+      let rInt = function(max) {
+        return Math.floor(Math.random() * Math.floor(max));
+      }
       let handUi = UI.UiRoot(
-        UI.FoldLayout(
-          UI.GridLayout({cols:4},
-            UI.UiButton({oncontrollerdown:(function(){this.setAttribute('color', '#88CCAA');}),size:[3,3]}),
-            UI.UiButton({oncontrollerdown:(function(){this.setAttribute('visible', false);}),size:[1,2]}),
-            UI.UiButton()
-          ),
-          UI.RowsLayout(),
-          UI.UiTabs( //TODO Icons, labels
-            UI.GridLayout({rows:4}),
-            UI.UiButton()
-          )
+        UI.GridLayout({cols:4},
+          UI.UiButton({oncontrollerdown:(function(){this.setAttribute('color', '#88CCAA');}),size:[3,3]}),
+          UI.UiButton({oncontrollerdown:(function(){this.setAttribute('visible', false);}),size:[1,2]}),
+          UI.UiButton(),
+          ...Array.from({length: 7}, x => UI.UiButton({size:[rInt(3)+1,rInt(3)+1]}))
         )
       );
+      handUi.setAttribute('position', '0 0.1 0');
+
       uiEl.appendChild(handUi);
     }
   
@@ -308,7 +322,7 @@ AFRAME.registerComponent('ui', {
       callback = object.el.oncontrollerdown;
     }
     if (callback) {
-      callback(object, position);
+      callback.call(object.el, object, position);
       this.activeWidget = name; //TODO Should this not be in the if-block?
     }
     switch (true) {

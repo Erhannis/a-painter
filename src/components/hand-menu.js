@@ -24,13 +24,13 @@ UiRoot(
 //TODO Man, I should really nail down the name
 window.HandMenu = (function() {
     function UiButton({oncontrollerdown, oncontrollerhold, oncontrollerup, size=[1,1]}={}) {
-        let plane = UiEntity(); //TODO I don't know how to deal with the maxSize thing
+        let plane = UiEntity({type:"a-plane"}); //TODO I don't know how to deal with the maxSize thing
         let s = [...size];
         plane.getSize = function(maxSize) {
             return s; //TODO
         };
-        plane.setAttribute('width', 0.9);
-        plane.setAttribute('height', 0.9);
+        plane.setAttribute('width', size[0]-0.1);
+        plane.setAttribute('height', size[1]-0.1);
         plane.setAttribute('color', '#909090');
         //plane.setAttribute('position', '0 0 0');
         plane.oncontrollerdown = oncontrollerdown;
@@ -46,6 +46,7 @@ window.HandMenu = (function() {
         let ui = UiEntity();
         ui.setAttribute('rotation', '-90 0 0');
         ui.setAttribute('scale', '0.05 0.05 0.05');
+        layout.setAttribute('position', '0 0 0');
         ui.appendChild(layout);
         return ui;
     }
@@ -111,9 +112,9 @@ window.HandMenu = (function() {
                             }
                         }
                         if (fixed == "cols") {
-                            item.setAttribute('position', `${a+((first(isize)-1)/2)} ${b+((second(isize)-1)/2)} 0`);
+                            item.setAttribute('position', `${a+((first(isize)-1)/2)} ${-b-((second(isize)-1)/2)} 0`);
                         } else {
-                            item.setAttribute('position', `${b+((second(isize)-1)/2)} ${a+((first(isize)-1)/2)} 0`);
+                            item.setAttribute('position', `${b+((second(isize)-1)/2)} ${-a-((first(isize)-1)/2)} 0`);
                         }
                         this.placementIndex = b;
                         placed = true;
@@ -138,9 +139,9 @@ window.HandMenu = (function() {
                                 }
                             }
                             if (fixed == "cols") {
-                                item.setAttribute('position', `${a+((first(isize)-1)/2)} ${b+((second(isize)-1)/2)} 0`);
+                                item.setAttribute('position', `${a+((first(isize)-1)/2)} ${-b-((second(isize)-1)/2)} 0`);
                             } else {
-                                item.setAttribute('position', `${b+((second(isize)-1)/2)} ${a+((first(isize)-1)/2)} 0`);
+                                item.setAttribute('position', `${b+((second(isize)-1)/2)} ${-a-((first(isize)-1)/2)} 0`);
                             }
                             this.placementIndex = b;
                             placed = true;
@@ -199,8 +200,8 @@ window.HandMenu = (function() {
         return layout;
     }
     
-    function UiEntity(maxSize=[1,1]) { //TODO There's probably a more kosher way of doing this
-        let entity = document.createElement('a-entity');
+    function UiEntity({type="a-entity", maxSize=[1,1]}={}) { //TODO There's probably a more kosher way of doing this
+        let entity = document.createElement(type);
         entity.maxSize = maxSize;
     
         /**
