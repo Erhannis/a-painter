@@ -48,18 +48,20 @@ AFRAME.registerComponent('ui', {
     el.appendChild(uiEl);
 
     //TODO Hmm, do I shrink/rotate the root element, or every leaf element?  ...One root, I think.
-    var buttons = document.createElement('a-entity');
+    let buttons = document.createElement('a-entity');
     buttons.setAttribute('rotation', '-90 0 0');
     buttons.setAttribute('scale', '0.05 0.05 0.05');
+    buttons.setAttribute('position', '0.2 0.2 0');
     {
-      var plane = document.createElement('a-plane');
+      let plane = document.createElement('a-plane');
       plane.setAttribute('width', 0.9);
       plane.setAttribute('height', 0.9);
       plane.setAttribute('color', '#909090');
       plane.setAttribute('position', '0 0 0');
-      var t = this;
+      let t = this;
       plane.oncontrollerdown = function(object, position) {
-        t.playSound('sound0');
+        plane.setAttribute('visible', !plane.getAttribute('visible'));
+        console.log("button visible: " + plane.getAttribute('visible'));
       };
       // Note that oncontrollerhold is NOT called the first time - it's down, THEN hold (many times), THEN up.
       plane.oncontrollerhold = null;
@@ -67,12 +69,12 @@ AFRAME.registerComponent('ui', {
       buttons.appendChild(plane);
     }
     {
-      var plane = document.createElement('a-plane');
+      let plane = document.createElement('a-plane');
       plane.setAttribute('width', 0.9);
       plane.setAttribute('height', 0.9);
       plane.setAttribute('color', '#909090');
       plane.setAttribute('position', '1 0 0');
-      var t = this;
+      let t = this;
       plane.oncontrollerdown = function(object, position) {
         t.playSound('sound1');
       };
@@ -82,12 +84,12 @@ AFRAME.registerComponent('ui', {
       buttons.appendChild(plane);
     }
     {
-      var plane = document.createElement('a-plane');
+      let plane = document.createElement('a-plane');
       plane.setAttribute('width', 0.9);
       plane.setAttribute('height', 0.9);
       plane.setAttribute('color', '#909090');
       plane.setAttribute('position', '0 1 0');
-      var t = this;
+      let t = this;
       plane.oncontrollerdown = function(object, position) {
         t.playSound('sound2');
       };
@@ -97,12 +99,12 @@ AFRAME.registerComponent('ui', {
       buttons.appendChild(plane);
     }
     {
-      var plane = document.createElement('a-plane');
+      let plane = document.createElement('a-plane');
       plane.setAttribute('width', 0.9);
       plane.setAttribute('height', 0.9);
       plane.setAttribute('color', '#909090');
       plane.setAttribute('position', '2 2 0');
-      var t = this;
+      let t = this;
       plane.oncontrollerdown = function(object, position) {
         t.playSound('sound3');
       };
@@ -111,7 +113,27 @@ AFRAME.registerComponent('ui', {
       plane.oncontrollerup = null;
       buttons.appendChild(plane);
     }
-    uiEl.appendChild(buttons);
+    //uiEl.appendChild(buttons);
+
+    {
+      let UI = HandMenu;
+      let handUi = UI.UiRoot(
+        UI.FoldLayout(
+          UI.GridLayout({cols:4},
+            UI.UiButton({oncontrollerdown:(function(){this.setAttribute('color', '#88CCAA');}),size:[3,3]}),
+            UI.UiButton({oncontrollerdown:(function(){this.setAttribute('visible', false);}),size:[1,2]}),
+            UI.UiButton()
+          ),
+          UI.RowsLayout(),
+          UI.UiTabs( //TODO Icons, labels
+            UI.GridLayout({rows:4}),
+            UI.UiButton()
+          )
+        )
+      );
+      uiEl.appendChild(handUi);
+    }
+  
 
     // Ray entity setup
     rayEl.setAttribute('line', '');
