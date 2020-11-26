@@ -65,6 +65,7 @@ window.HandMenu = (function() {
      */
     function GridLayout({cols, rows, pack=true}={}) {
         let layout = UiEntity();
+        let buttons = UiEntity();
         let size;
         let fixed;
         let first; // first to be traversed - second coord, really
@@ -161,6 +162,7 @@ window.HandMenu = (function() {
             fixed = "cols";
             first = (s => s[0]);
             second = (s => s[1]);
+            buttons.setAttribute('position', `${-cols/2+0.5} ${0-0.5} 0`); //TODO How far up?
         } else {
             // Many cols
             // fixed rows
@@ -168,6 +170,7 @@ window.HandMenu = (function() {
             fixed = "rows";
             first = (s => s[1]);
             second = (s => s[0]);
+            buttons.setAttribute('position', `${0+0.5} ${rows/2-0.5} 0`);
         }
         let items = [...arguments];
         items.reverse();
@@ -175,8 +178,9 @@ window.HandMenu = (function() {
         while (items.length > 0) {
             let item = items.pop();
             grid.add(item, pack);
-            layout.appendChild(item);
+            buttons.appendChild(item);
         }
+        layout.appendChild(buttons);
         return layout;
     }
     

@@ -137,13 +137,14 @@ AFRAME.registerComponent('ui', {
       }
       let handUi = UI.UiRoot(
         UI.GridLayout({cols:4},
+          ...Array.from({length: 16}, x => UI.UiButton()),
           UI.UiButton({oncontrollerdown:(function(){this.setAttribute('color', '#88CCAA');}),size:[3,3]}),
           UI.UiButton({oncontrollerdown:(function(){this.setAttribute('visible', false);}),size:[1,2]}),
           UI.UiButton(),
           ...Array.from({length: 7}, x => UI.UiButton({size:[rInt(3)+1,rInt(3)+1]}))
         )
       );
-      handUi.setAttribute('position', '0 0.1 0');
+      handUi.setAttribute('position', '0 0.01 0');
 
       uiEl.appendChild(handUi);
     }
