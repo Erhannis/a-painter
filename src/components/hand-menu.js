@@ -23,6 +23,7 @@ UiRoot(
 
 //TODO Man, I should really nail down the name
 window.HandMenu = (function() {
+    //TODO How to change text later?
     function UiButton({oncontrollerdown, oncontrollerhold, oncontrollerup, color="#909090", text, textcolor="#000000", materials, size=[1,1]}={}) {
         let plane = UiEntity({type:"a-plane", color:color, materials:materials}); //TODO I don't know how to deal with the maxSize thing
         let s = [...size];
@@ -90,7 +91,7 @@ window.HandMenu = (function() {
      * @param {*} rows 
      * @param {*} pack Ignore order in favor of tighter packing
      */
-    function GridLayout({cols, rows, pack=true}={}) {
+    function GridLayout({cols, rows, pack=true}={},...children) {
         let layout = UiEntity();
         let buttons = UiEntity();
         let size;
@@ -140,9 +141,9 @@ window.HandMenu = (function() {
                             }
                         }
                         if (fixed == "cols") {
-                            item.setAttribute('position', `${a+((first(isize)-1)/2)} ${-b-((second(isize)-1)/2)} 0`);
+                            item.setAttribute('position', `${a+((first(isize))/2)} ${-b-((second(isize))/2)} 0`);
                         } else {
-                            item.setAttribute('position', `${b+((second(isize)-1)/2)} ${-a-((first(isize)-1)/2)} 0`);
+                            item.setAttribute('position', `${b+((second(isize))/2)} ${-a-((first(isize))/2)} 0`);
                         }
                         this.placementIndex = b;
                         placed = true;
@@ -167,9 +168,9 @@ window.HandMenu = (function() {
                                 }
                             }
                             if (fixed == "cols") {
-                                item.setAttribute('position', `${a+((first(isize)-1)/2)} ${-b-((second(isize)-1)/2)} 0`);
+                                item.setAttribute('position', `${a+((first(isize))/2)} ${-b-((second(isize))/2)} 0`);
                             } else {
-                                item.setAttribute('position', `${b+((second(isize)-1)/2)} ${-a-((first(isize)-1)/2)} 0`);
+                                item.setAttribute('position', `${b+((second(isize))/2)} ${-a-((first(isize))/2)} 0`);
                             }
                             this.placementIndex = b;
                             placed = true;
@@ -197,7 +198,7 @@ window.HandMenu = (function() {
             fixed = "cols";
             first = (s => s[0]);
             second = (s => s[1]);
-            buttons.setAttribute('position', `${-cols/2+0.5} ${0-0.5} 0`); //TODO How far up?
+            //buttons.setAttribute('position', `${-cols/2} ${0-0} 0`); //TODO How far up?
         } else {
             // Many cols
             // fixed rows
@@ -205,17 +206,18 @@ window.HandMenu = (function() {
             fixed = "rows";
             first = (s => s[1]);
             second = (s => s[0]);
-            buttons.setAttribute('position', `${0+0.5} ${rows/2-0.5} 0`);
+            //buttons.setAttribute('position', `${0} ${rows/2-0} 0`); //TODO Ditto
         }
-        let items = [...arguments];
+        let items = [...children];
         items.reverse();
-        items.pop();
         while (items.length > 0) {
             let item = items.pop();
             grid.add(item, pack);
             buttons.appendChild(item);
         }
         layout.appendChild(buttons);
+        let finalSize = layout.getSize();
+        buttons.setAttribute('position', `${-finalSize[0]/2} ${finalSize[1]/2} 0`);
         return layout;
     }
     
@@ -239,7 +241,7 @@ window.HandMenu = (function() {
         return layout;
     }
 
-    function UiEntity(params={}) { // {type,maxSize,color,materials:{normal:{color,flatShading,shader,transparent,fog,src},hover:{...},pressed:{...},selected:{...}}}
+    function UiEntity(params={}, ...children) { // {type,maxSize,color,materials:{normal:{color,flatShading,shader,transparent,fog,src},hover:{...},pressed:{...},selected:{...}}}
         let options = {type:"a-entity", maxSize:[1,1],
             materials:{ //TODO Do these even belong here?  Or are they only really applicable for buttons?
                 normal:{ //TODO Might not want to recurse into these, but I don't really have any good methods for that
@@ -294,9 +296,26 @@ window.HandMenu = (function() {
          * maxSize is a field on UiEntity.
          * Sizes are in [X,Y]
          */
-        entity.getSize = function() { //TODO ??
+        entity.getSize = function(maxSize) { //TODO ??
             return [1,1];
         };
+
+        if (children) {
+            for (let i = 0; i < children.length; i++) {
+                entity.appendChild(children[i]);
+            }
+            entity.getSize = function(maxSize) {
+                let maxX = 1;
+                let maxY = 1;
+                for (let i = 0; i < children.length; i++) {
+                    let size = children[i].getSize(maxSize); //TODO ??
+                    maxX = Math.max(maxX, size[0]);
+                    maxY = Math.max(maxY, size[1]);
+                }
+                return [maxX, maxY];
+            }
+        }
+
         return entity;
     }
 
@@ -308,7 +327,7 @@ window.HandMenu = (function() {
         ColsLayout: ColsLayout,
         UiTabs: UiTabs,
         PageLayout: PageLayout,
-        //UiEntity: UiEntity,
+        UiEntity: UiEntity,
         UiButton: UiButton,
         UiText: UiText
     }
