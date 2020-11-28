@@ -135,17 +135,24 @@ AFRAME.registerComponent('ui', {
       let rInt = function(max) {
         return Math.floor(Math.random() * Math.floor(max));
       }
+      let grid;
+      let text;
       let handUi = UI.UiRoot(
-        UI.GridLayout({cols:4},
+        grid = UI.GridLayout({cols:4},
           UI.UiButton({oncontrollerdown:(function(){
-            this.setAttribute('color', "#88CCAA");
+            setTimeout(() => {
+              this.materials.normal.color = "#88CCAA";
+            }, 1000);
           }),text:"Color",color:"#0000FF",size:[3,3]}),
           UI.UiButton({oncontrollerdown:(function(){
             this.setAttribute('visible', false);
           }),text:"Visible",color:"#FF0000",size:[1,2]}),
-          UI.UiText({text:"Blah",textcolor:"#55FF55"}),
-          UI.UiButton()
-          //...Array.from({length: 7}, x => UI.UiButton({size:[rInt(3)+1,rInt(3)+1]}))
+          text = UI.UiText({text:"Blah",textcolor:"#55FF55"}),
+          UI.UiButton({oncontrollerdown:(function(){
+            text.setAttribute("value",`${grid.getSize()}`);
+          }),text:"Grid size"}),
+          UI.UiButton(),
+          ...Array.from({length: 7}, x => UI.UiButton({size:[rInt(3)+1,rInt(3)+1]}))
         )
       );
       handUi.setAttribute('position', '0 0.01 0');
@@ -539,39 +546,50 @@ AFRAME.registerComponent('ui', {
       // Remove hover highlights
       this.hoveredOffObjects.forEach(function (obj) {
         var object = obj.object;
-        object.material = self.highlightMaterials[object.name].normal;
+        if (object.el.materials && object.el.materials.normal) {
+          object.el.setAttribute("material", object.el.materials.normal);
+        }
       });
       // Add highlight to newly intersected objects
       this.hoveredOnObjects.forEach(function (obj) {
         var object = obj.object;
         point.copy(obj.point);
-        if (!self.highlightMaterials[object.name]) {
+        if (!self.highlightMaterials[object.name]) { //TODO ??
           self.initHighlightMaterial(object);
         }
         // Update ray
         self.handRayEl.object3D.worldToLocal(point);
         self.handRayEl.setAttribute('line', 'end', point);
-        object.material = self.highlightMaterials[object.name].hover;
+        //object.material = self.highlightMaterials[object.name].hover; //TODO ??
+        if (object.el.materials && object.el.materials.hover) {
+          object.el.setAttribute("material", object.el.materials.hover);
+        }
       });
       // Pressed Material
       Object.keys(pressedObjects).forEach(function (key) {
         var object = pressedObjects[key];
         var materials = self.highlightMaterials[object.name];
-        object.material = materials.pressed || object.material;
+        //object.material = materials.pressed || object.material; //TODO ??
+        if (object.el.materials && object.el.materials.pressed) {
+          object.el.setAttribute("material", object.el.materials.pressed);
+        }
       });
       // Unpressed Material
       Object.keys(unpressedObjects).forEach(function (key) {
         var object = unpressedObjects[key];
-        var materials = self.highlightMaterials[object.name];
-        object.material = materials.normal;
+        //var materials = self.highlightMaterials[object.name];
+        if (object.el.materials && object.el.materials.normal) {
+          object.el.setAttribute("material", object.el.materials.normal);
+        }
         delete unpressedObjects[key];
       });
       // Selected material
       Object.keys(selectedObjects).forEach(function (key) {
         var object = selectedObjects[key];
-        var materials = self.highlightMaterials[object.name];
-        if (!materials) { return; }
-        object.material = materials.selected;
+        //var materials = self.highlightMaterials[object.name];
+        if (object.el.materials && object.el.materials.selected) {
+          object.el.setAttribute("material", object.el.materials.selected);
+        }
       });
     };
   })(),

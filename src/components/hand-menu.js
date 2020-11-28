@@ -23,15 +23,14 @@ UiRoot(
 
 //TODO Man, I should really nail down the name
 window.HandMenu = (function() {
-    function UiButton({oncontrollerdown, oncontrollerhold, oncontrollerup, color="#909090", text, textcolor="#000000", size=[1,1]}={}) {
-        let plane = UiEntity({type:"a-plane"}); //TODO I don't know how to deal with the maxSize thing
+    function UiButton({oncontrollerdown, oncontrollerhold, oncontrollerup, color="#909090", text, textcolor="#000000", materials, size=[1,1]}={}) {
+        let plane = UiEntity({type:"a-plane", color:color, materials:materials}); //TODO I don't know how to deal with the maxSize thing
         let s = [...size];
         plane.getSize = function(maxSize) {
             return s; //TODO
         };
         plane.setAttribute('width', size[0]-0.1);
         plane.setAttribute('height', size[1]-0.1);
-        plane.setAttribute('color', color);
         if (text) {
             let label = UiEntity({type: "a-text"});
             label.setAttribute("value", text);
@@ -239,11 +238,57 @@ window.HandMenu = (function() {
         //TODO
         return layout;
     }
+
+    function UiEntity(params={}) { // {type,maxSize,color,materials:{normal:{color,flatShading,shader,transparent,fog,src},hover:{...},pressed:{...},selected:{...}}}
+        let options = {type:"a-entity", maxSize:[1,1],
+            materials:{ //TODO Do these even belong here?  Or are they only really applicable for buttons?
+                normal:{ //TODO Might not want to recurse into these, but I don't really have any good methods for that
+                    color: "#909090",
+                    flatShading: true,
+                    shader: 'flat',
+                    transparent: true,
+                    fog: false,
+                    src: 'shader:flat'
+                },
+                hover:{
+                    color: "#FF0000",
+                    flatShading: true,
+                    shader: 'flat',
+                    transparent: true,
+                    fog: false,
+                    src: 'shader:flat'
+                },
+                pressed:{
+                    color: "#FFDDDD", 
+                    flatShading: true,
+                    shader: 'flat',
+                    transparent: true,
+                    fog: false,
+                    src: 'shader:flat'
+                },
+                selected:{
+                    color: "#DDAAAA", 
+                    flatShading: true,
+                    shader: 'flat',
+                    transparent: true,
+                    fog: false,
+                    src: 'shader:flat'
+                }
+            }
+        }; //TODO This does mostly what I want, but it's a bit verbose
+        _.merge(options,params);
+        let {type,maxSize,color,materials} = options;
     
-    function UiEntity({type="a-entity", maxSize=[1,1]}={}) { //TODO There's probably a more kosher way of doing this
         let entity = document.createElement(type);
         entity.maxSize = maxSize;
     
+        //TODO Optionize
+        entity.materials = materials;
+        if (color) {
+            entity.materials.normal.color = color;
+        }
+        entity.setAttribute("material", entity.materials.normal);
+  
         /**
          * Override to return actual size.
          * maxSize is a field on UiEntity.

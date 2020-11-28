@@ -1,3 +1,5 @@
+_ = require('lodash');
+
 require('./utils.js');
 require('./components/hand-menu.js');
 
