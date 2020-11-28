@@ -143,7 +143,7 @@ AFRAME.registerComponent('ui', {
           UI.UiButton({oncontrollerdown:(function(){
             this.setAttribute('visible', false);
           }),text:"Visible",color:"#FF0000",size:[1,2]}),
-          UI.UiText({text:"Blah",textcolor:"#55FF55",}),
+          UI.UiText({text:"Blah",textcolor:"#55FF55"}),
           UI.UiButton()
           //...Array.from({length: 7}, x => UI.UiButton({size:[rInt(3)+1,rInt(3)+1]}))
         )

@@ -183,6 +183,14 @@ window.HandMenu = (function() {
                 console.error("WAT Didn't place grid item?");
             }
         };
+        layout.getSize = function(maxSize) {
+            if (fixed == "cols") {
+                return [size, grid.length]; //TODO May not be quite accurate at the ends
+            } else {
+                return [grid.length, size]; //TODO May not be quite accurate at the ends
+            }
+        };
+
         if (rows == null || rows == undefined) {
             // Many rows
             // fixed cols
