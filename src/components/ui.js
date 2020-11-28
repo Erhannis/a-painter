@@ -156,8 +156,35 @@ AFRAME.registerComponent('ui', {
         )
       );
       handUi.setAttribute('position', '0 0.01 0');
+      //uiEl.appendChild(handUi);
 
-      uiEl.appendChild(handUi);
+      let tabs = [];
+      let hideTabs = function() { //TODO Should probably keep track of which tab is active
+        for (let i = 0; i < tabs.length; i++) {
+          tabs[i].setAttribute("visible",false);
+        }
+      }
+
+      let tabsUi = UI.UiRoot(
+        UI.GridLayout({cols:6},
+          UI.GridLayout({cols:6},
+            UI.UiButton({text:"A",oncontrollerdown:(function() {hideTabs(); tabs[0].setAttribute("visible", true);})}),
+            UI.UiButton({text:"B",oncontrollerdown:(function() {hideTabs(); tabs[1].setAttribute("visible", true);})}),
+            UI.UiButton({text:"C",oncontrollerdown:(function() {hideTabs(); tabs[2].setAttribute("visible", true);})}),
+            UI.UiButton({text:"D",oncontrollerdown:(function() {hideTabs(); tabs[3].setAttribute("visible", true);})}),
+            UI.UiButton({text:"E",oncontrollerdown:(function() {hideTabs(); tabs[4].setAttribute("visible", true);})}),
+            UI.UiButton({text:"F",oncontrollerdown:(function() {hideTabs(); tabs[5].setAttribute("visible", true);})})
+          ),
+          UI.UiEntity({},
+          ...Array.from({length: 6}, x => {
+            return tabs[tabs.length] = UI.GridLayout({cols:6},
+              ...Array.from({length: 7}, x => UI.UiButton({size:[rInt(3)+1,rInt(3)+1]}))
+            )
+          }))
+        )
+      );
+      tabsUi.setAttribute('position', '0 0.01 0');
+      uiEl.appendChild(tabsUi);
     }
   
 
