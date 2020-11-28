@@ -23,7 +23,7 @@ UiRoot(
 
 //TODO Man, I should really nail down the name
 window.HandMenu = (function() {
-    function UiButton({oncontrollerdown, oncontrollerhold, oncontrollerup, size=[1,1]}={}) {
+    function UiButton({oncontrollerdown, oncontrollerhold, oncontrollerup, color="#909090", text, textcolor="#000000", size=[1,1]}={}) {
         let plane = UiEntity({type:"a-plane"}); //TODO I don't know how to deal with the maxSize thing
         let s = [...size];
         plane.getSize = function(maxSize) {
@@ -31,7 +31,16 @@ window.HandMenu = (function() {
         };
         plane.setAttribute('width', size[0]-0.1);
         plane.setAttribute('height', size[1]-0.1);
-        plane.setAttribute('color', '#909090');
+        plane.setAttribute('color', color);
+        if (text) {
+            let label = UiEntity({type: "a-text"});
+            label.setAttribute("value", text);
+            label.setAttribute("align", "center");
+            label.setAttribute('position', '0 0 0.01');
+            label.setAttribute('color', textcolor);
+            //TODO Size, color
+            plane.appendChild(label);
+        }
         //plane.setAttribute('position', '0 0 0');
         plane.oncontrollerdown = oncontrollerdown;
         // Note that oncontrollerhold is NOT called the first time - it's down, THEN hold (many times), THEN up.
@@ -40,6 +49,25 @@ window.HandMenu = (function() {
         //buttons.appendChild(plane);
         //TODO Material?
         return plane;
+    }
+
+    function UiText({text="Text", color="#FFFFFF", textcolor,size=[1,1]}={}) {
+        let ui = UiEntity({type: "a-text"});
+        ui.setAttribute("value", text);
+        ui.setAttribute("align", "center");
+        if (textcolor) {
+            color = textcolor;
+        }
+        if (color) {
+            ui.setAttribute('color', color);
+        }
+        // ui.setAttribute('width', size[0]-0.1);
+        // ui.setAttribute('height', size[1]-0.1);
+        let s = [...size];
+        ui.getSize = function(maxSize) {
+            return s; //TODO
+        };
+        return ui;
     }
     
     function UiRoot(layout) {
@@ -228,6 +256,7 @@ window.HandMenu = (function() {
         UiTabs: UiTabs,
         PageLayout: PageLayout,
         //UiEntity: UiEntity,
-        UiButton: UiButton
+        UiButton: UiButton,
+        UiText: UiText
     }
 }());
