@@ -159,7 +159,7 @@ AFRAME.registerComponent('ui', {
 
       //uiEl.appendChild(handUi);
 
-      
+/*      
       let tabs = [];
       let hideTabs = function() { //TODO Should probably keep track of which tab is active
         for (let i = 0; i < tabs.length; i++) {
@@ -172,8 +172,8 @@ AFRAME.registerComponent('ui', {
       let tabsEntity;
 
       let tabsUi = UI.UiRoot(
-        gridOuter = UI.GridLayout({cols:6},
-          gridInner = UI.GridLayout({cols:6},
+        gridOuter = UI.GridLayout({rows:6},
+          gridInner = UI.GridLayout({rows:6},
             UI.UiButton({text:"A",oncontrollerdown:(function() {hideTabs(); tabs[0].setAttribute("visible", true); console.log(0, tabs[0].getSize());})}),
             UI.UiButton({text:"B",oncontrollerdown:(function() {hideTabs(); tabs[1].setAttribute("visible", true); console.log(1, tabs[1].getSize());})}),
             UI.UiButton({text:"C",oncontrollerdown:(function() {hideTabs(); tabs[2].setAttribute("visible", true); console.log(2, tabs[2].getSize());})}),
@@ -183,7 +183,7 @@ AFRAME.registerComponent('ui', {
           ),
           tabsEntity = UI.UiEntity({},
             ...Array.from({length: 6}, x => {
-              return tabs[tabs.length] = UI.GridLayout({cols:6},
+              return tabs[tabs.length] = UI.GridLayout({rows:6},
                 ...Array.from({length: 7}, x => UI.UiButton({size:[rInt(3)+1,rInt(3)+1]}))
               )
             })
@@ -198,7 +198,50 @@ AFRAME.registerComponent('ui', {
 
       tabsUi.setAttribute('position', '0 0.01 0');
       uiEl.appendChild(tabsUi);
-          
+*/          
+
+      let tabsUi = UI.UiRoot(
+        UI.UiTabs({labels:["top","right","bottom","left"]},
+          UI.UiTabs({side:"top",labels:["A","B","C","D","E","F"]},
+            ...Array.from({length: 6}, x => {
+              return UI.GridLayout({cols:6}, // You'll likely want to use cols for top/bottom and rows for left/right, or the alignment is weirder than usual
+                ...Array.from({length: 7}, x => UI.UiButton({size:[rInt(3)+1,rInt(3)+1]}))
+              )
+            })
+            //...Array.from({length: 6}, x => UI.UiButton({size:[rInt(3)+1,rInt(3)+1]}))
+          ),
+          UI.UiTabs({side:"right",labels:["A","B","C","D","E","F"]},
+            ...Array.from({length: 6}, x => {
+              return UI.GridLayout({rows:6},
+                ...Array.from({length: 7}, x => UI.UiButton({size:[rInt(3)+1,rInt(3)+1]}))
+              )
+            })
+            //...Array.from({length: 6}, x => UI.UiButton({size:[rInt(3)+1,rInt(3)+1]}))
+          ),
+          UI.UiTabs({side:"bottom",labels:["A","B","C","D","E","F"]},
+            ...Array.from({length: 6}, x => {
+              return UI.GridLayout({cols:6},
+                ...Array.from({length: 7}, x => UI.UiButton({size:[rInt(3)+1,rInt(3)+1]}))
+              )
+            })
+            //...Array.from({length: 6}, x => UI.UiButton({size:[rInt(3)+1,rInt(3)+1]}))
+          ),
+          UI.UiTabs({side:"left",labels:["A","B","C","D","E","F"]},
+            ...Array.from({length: 6}, x => {
+              return UI.GridLayout({rows:6},
+                ...Array.from({length: 7}, x => UI.UiButton({size:[rInt(3)+1,rInt(3)+1]}))
+              )
+            })
+            //...Array.from({length: 6}, x => UI.UiButton({size:[rInt(3)+1,rInt(3)+1]}))
+          )
+        )
+      );
+
+      tabsUi.setAttribute('position', '0 0.01 0');
+      uiEl.appendChild(tabsUi);
+
+
+
 
             /*
       let ba;

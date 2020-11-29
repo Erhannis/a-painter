@@ -229,9 +229,86 @@ window.HandMenu = (function() {
         return GridLayout({rows: 1}, ...arguments);
     }
     
-    function UiTabs() {
+    /**
+     * side = "top"|"bottom"|"left"|"right"
+     * 
+     * nothing OR labels[string] OR tabs[entity]. //TODO `tabs` don't have an easy way of selecting the right page
+     * @param {*} param0 
+     * @param  {...any} pages 
+     */
+    function UiTabs({tabs, labels, side="top"}={}, ...pages) {
         let layout = UiEntity();
-        //TODO
+
+        let size = [1,1];
+        let rowcol;
+        if (side == "top" || side == "bottom") {
+            rowcol = "cols";
+            for (let i = 0; i < pages.length; i++) {
+                let pageSize = pages[i].getSize();
+                size[0] = Math.max(size[0], pageSize[0]);
+                size[1] = Math.max(size[1], pageSize[1]+1);
+            }
+        } else {
+            rowcol = "rows";
+            for (let i = 0; i < pages.length; i++) {
+                let pageSize = pages[i].getSize();
+                size[0] = Math.max(size[0], pageSize[0]+1);
+                size[1] = Math.max(size[1], pageSize[1]);
+            }
+        }
+        let asdf = size;
+        layout.getSize = function(maxSize) {
+            return asdf;
+        };
+        let second;
+        if (side == "top" || side == "left") {
+            second = false;
+        } else {
+            second = true;
+        }
+
+        function maybeReverse(bool, ...children) {
+            if (bool) {
+                children.reverse();
+            }
+            return children;
+        }
+
+        let hidePages = function() { //TODO Should probably keep track of which tab is active, instead
+            for (let i = 0; i < pages.length; i++) {
+                pages[i].setAttribute("visible",false);
+            }
+        }
+        hidePages();
+
+        let tabButtons;
+        if (tabs) {
+            tabButtons = tabs;
+        } else {
+            tabButtons = [];
+            for (let i = 0; i < pages.length; i++) {
+                tabButtons[i] = UiButton({text:(labels ? labels[i] : undefined), oncontrollerdown:function(){
+                    hidePages();
+                    pages[i].setAttribute("visible", true);
+                }});
+            }
+        }
+
+        let gridOuter;
+        let gridInner;
+        let pagesEntity;
+        gridOuter = GridLayout({[rowcol]:pages.length},
+            ...maybeReverse(second,
+                gridInner = GridLayout({[rowcol]:pages.length},
+                    ...tabButtons
+                ),
+                pagesEntity = UiEntity({},
+                    ...pages
+                )
+            )
+        )
+        layout.appendChild(gridOuter);
+  
         return layout;
     }
     
@@ -241,7 +318,16 @@ window.HandMenu = (function() {
         return layout;
     }
 
-    function UiEntity(params={}, ...children) { // {type,maxSize,color,materials:{normal:{color,flatShading,shader,transparent,fog,src},hover:{...},pressed:{...},selected:{...}}}
+    /**
+     * getSize comes from `size`.
+     *   If no `size`, is autocalculated from `children`.
+     *   If no `children`, defaults to [1,1].
+     * 
+     * 
+     * @param {*} params 
+     * @param  {...any} children 
+     */
+    function UiEntity(params={}, ...children) { // {type,size,maxSize,color,materials:{normal:{color,flatShading,shader,transparent,fog,src},hover:{...},pressed:{...},selected:{...}}}
         let options = {type:"a-entity", maxSize:[1,1],
             materials:{ //TODO Do these even belong here?  Or are they only really applicable for buttons?
                 normal:{ //TODO Might not want to recurse into these, but I don't really have any good methods for that
@@ -279,7 +365,7 @@ window.HandMenu = (function() {
             }
         }; //TODO This does mostly what I want, but it's a bit verbose
         _.merge(options,params);
-        let {type,maxSize,color,materials} = options;
+        let {type,size,maxSize,color,materials} = options;
     
         let entity = document.createElement(type);
         entity.maxSize = maxSize;
@@ -297,22 +383,28 @@ window.HandMenu = (function() {
          * Sizes are in [X,Y]
          */
         entity.getSize = function(maxSize) { //TODO ??
-            return [1,1];
+            if (size) {
+                return size;
+            } else {
+                return [1,1];
+            }
         };
 
         if (children) {
             for (let i = 0; i < children.length; i++) {
                 entity.appendChild(children[i]);
             }
-            entity.getSize = function(maxSize) {
-                let maxX = 1;
-                let maxY = 1;
-                for (let i = 0; i < children.length; i++) {
-                    let size = children[i].getSize(maxSize); //TODO ??
-                    maxX = Math.max(maxX, size[0]);
-                    maxY = Math.max(maxY, size[1]);
+            if (!size) {
+                entity.getSize = function(maxSize) {
+                    let maxX = 1;
+                    let maxY = 1;
+                    for (let i = 0; i < children.length; i++) {
+                        let size = children[i].getSize(maxSize); //TODO ??
+                        maxX = Math.max(maxX, size[0]);
+                        maxY = Math.max(maxY, size[1]);
+                    }
+                    return [maxX, maxY];
                 }
-                return [maxX, maxY];
             }
         }
 
