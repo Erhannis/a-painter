@@ -116,90 +116,6 @@ AFRAME.registerComponent('ui', {
     //uiEl.appendChild(buttons);
 
     {
-      let UI = HandMenu;
-      // let handUi = UI.UiRoot(
-      //   UI.FoldLayout(
-      //     UI.GridLayout({cols:4},
-      //       UI.UiButton({oncontrollerdown:(function(){this.setAttribute('color', '#88CCAA');}),size:[3,3]}),
-      //       UI.UiButton({oncontrollerdown:(function(){this.setAttribute('visible', false);}),size:[1,2]}),
-      //       UI.UiButton()
-      //     ),
-      //     UI.RowsLayout(),
-      //     UI.UiTabs( //TODO Icons, labels
-      //       UI.GridLayout({rows:4}),
-      //       UI.UiButton()
-      //     )
-      //   )
-      // );
-      
-      let rInt = function(max) {
-        return Math.floor(Math.random() * Math.floor(max));
-      }
-      let grid;
-      let text;
-      let handUi = UI.UiRoot(
-        grid = UI.GridLayout({cols:4},
-          UI.UiButton({oncontrollerdown:(function(){
-            setTimeout(() => {
-              this.materials.normal.color = "#88CCAA";
-            }, 1000);
-          }),text:"Color",color:"#0000FF",size:[3,3]}),
-          UI.UiButton({oncontrollerdown:(function(){
-            this.setAttribute('visible', false);
-          }),text:"Visible",color:"#FF0000",size:[1,2]}),
-          text = UI.UiText({text:"Blah",textcolor:"#55FF55"}),
-          UI.UiButton({oncontrollerdown:(function(){
-            text.setAttribute("value",`${grid.getSize()}`);
-          }),text:"Grid size"}),
-          UI.UiButton(),
-          ...Array.from({length: 7}, x => UI.UiButton({size:[rInt(3)+1,rInt(3)+1]}))
-        )
-      );
-      handUi.setAttribute('position', '0 0.01 0');
-
-      //uiEl.appendChild(handUi);
-
-/*      
-      let tabs = [];
-      let hideTabs = function() { //TODO Should probably keep track of which tab is active
-        for (let i = 0; i < tabs.length; i++) {
-          tabs[i].setAttribute("visible",false);
-        }
-      }
-
-      let gridInner;
-      let gridOuter;
-      let tabsEntity;
-
-      let tabsUi = UI.UiRoot(
-        gridOuter = UI.GridLayout({rows:6},
-          gridInner = UI.GridLayout({rows:6},
-            UI.UiButton({text:"A",oncontrollerdown:(function() {hideTabs(); tabs[0].setAttribute("visible", true); console.log(0, tabs[0].getSize());})}),
-            UI.UiButton({text:"B",oncontrollerdown:(function() {hideTabs(); tabs[1].setAttribute("visible", true); console.log(1, tabs[1].getSize());})}),
-            UI.UiButton({text:"C",oncontrollerdown:(function() {hideTabs(); tabs[2].setAttribute("visible", true); console.log(2, tabs[2].getSize());})}),
-            UI.UiButton({text:"D",oncontrollerdown:(function() {hideTabs(); tabs[3].setAttribute("visible", true); console.log(3, tabs[3].getSize());})}),
-            UI.UiButton({text:"E",oncontrollerdown:(function() {hideTabs(); tabs[4].setAttribute("visible", true); console.log(4, tabs[4].getSize());})}),
-            UI.UiButton({text:"F",oncontrollerdown:(function() {hideTabs(); tabs[5].setAttribute("visible", true); console.log(5, tabs[5].getSize());})})
-          ),
-          tabsEntity = UI.UiEntity({},
-            ...Array.from({length: 6}, x => {
-              return tabs[tabs.length] = UI.GridLayout({rows:6},
-                ...Array.from({length: 7}, x => UI.UiButton({size:[rInt(3)+1,rInt(3)+1]}))
-              )
-            })
-            //...Array.from({length: 6}, x => tabs[tabs.length] = UI.UiButton({size:[rInt(3)+1,rInt(3)+1]}))
-          )
-        )
-      );
-
-      console.log("outer",gridOuter.getSize());
-      console.log("inner",gridInner.getSize());
-      console.log("tabs",tabsEntity.getSize());
-
-      tabsUi.setAttribute('position', '0 0.01 0');
-      uiEl.appendChild(tabsUi);
-*/          
-
       let tabsUi = UI.UiRoot(
         UI.UiTabs({labels:["top","right","bottom","left"]},
           UI.UiTabs({side:"top",labels:["A","B","C","D","E","F"]},
@@ -239,39 +155,6 @@ AFRAME.registerComponent('ui', {
 
       tabsUi.setAttribute('position', '0 0.01 0');
       uiEl.appendChild(tabsUi);
-
-
-
-
-            /*
-      let ba;
-      let bb;
-      let bc;
-      let bd;
-      let be;
-
-      let ui = UI.UiRoot(
-        UI.UiEntity({},
-          ba = UI.GridLayout({cols:5},
-            ...Array.from({length: 5*5}, x => UI.UiButton({size:[1,1], color:rInt(0x1000000)}))
-          ),
-          bb = UI.GridLayout({rows:5},
-            ...Array.from({length: 5*5}, x => UI.UiButton({size:[1,1], color:rInt(0x1000000)}))
-          ),
-          bc = UI.UiButton({size:[3,3], color:rInt(0x1000000)}),
-          bd = UI.UiButton({size:[2,2], color:rInt(0x1000000)}),
-          be = UI.UiButton({size:[1,1], color:rInt(0x1000000)})
-        )
-      );
-      ba.setAttribute("position", "0 0 0.0");
-      bb.setAttribute("position", "0 0 0.1");
-      bc.setAttribute("position", "0 0 0.2");
-      bd.setAttribute("position", "0 0 0.3");
-      be.setAttribute("position", "0 0 0.4");
-
-      ui.setAttribute('position', '0 0.01 0');
-      uiEl.appendChild(ui);
-      */
     }
   
 
