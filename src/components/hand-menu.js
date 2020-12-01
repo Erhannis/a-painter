@@ -79,9 +79,21 @@ window.HandMenu = (function() {
         return ui;
     }
     
-    function FoldLayout() {
+    function FoldLayout({degrees=25,diameter=15}={},...children) {
         let layout = UiEntity();
-        //TODO
+        
+        for (let i = 0; i < children.length; i++) {
+            let child = children[i];
+            //let childSeat = UiEntity();
+
+            let a = (i-((children.length-1)/2))*degrees;
+            let xo = Math.sin(2*Math.PI*a/360)*(diameter/2);
+            let zo = (1-Math.cos(2*Math.PI*a/360))*(diameter/2);
+            child.setAttribute('rotation', '0 '+(-a)+' 0');
+            child.setAttribute('position', xo + ' 0 ' + zo);
+            layout.appendChild(child);
+        }
+
         return layout;
     }
     
@@ -418,7 +430,7 @@ window.HandMenu = (function() {
         RowsLayout: RowsLayout,
         ColsLayout: ColsLayout,
         UiTabs: UiTabs,
-        PageLayout: PageLayout,
+        //PageLayout: PageLayout, //TODO
         UiEntity: UiEntity,
         UiButton: UiButton,
         UiText: UiText

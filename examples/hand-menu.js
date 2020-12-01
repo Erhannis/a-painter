@@ -1,3 +1,9 @@
+let UI = HandMenu;
+
+let rInt = function(max) {
+    return Math.floor(Math.random() * Math.floor(max));
+}
+
 if (false) {
     let handUi = UI.UiRoot(
     UI.FoldLayout(
@@ -18,10 +24,6 @@ if (false) {
 }
 
 if (false) {
-    let UI = HandMenu;
-    let rInt = function(max) {
-      return Math.floor(Math.random() * Math.floor(max));
-    }
     let grid;
     let text;
     let handUi = UI.UiRoot(

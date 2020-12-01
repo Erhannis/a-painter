@@ -116,6 +116,13 @@ AFRAME.registerComponent('ui', {
     //uiEl.appendChild(buttons);
 
     {
+      let UI = HandMenu;
+
+      let rInt = function(max) {
+        return Math.floor(Math.random() * Math.floor(max));
+      }
+  
+      /*
       let tabsUi = UI.UiRoot(
         UI.UiTabs({labels:["top","right","bottom","left"]},
           UI.UiTabs({side:"top",labels:["A","B","C","D","E","F"]},
@@ -155,6 +162,21 @@ AFRAME.registerComponent('ui', {
 
       tabsUi.setAttribute('position', '0 0.01 0');
       uiEl.appendChild(tabsUi);
+*/
+
+      let foldUi = UI.UiRoot(
+        UI.FoldLayout({},
+          ...Array.from({length: 7}, x => 
+            UI.GridLayout({rows:6},
+              //...Array.from({length: 7}, x => UI.UiButton({size:[rInt(2)+1,rInt(2)+1]}))
+              ...Array.from({length: 18}, x => UI.UiButton({size:[1,1]}))
+            )
+          ),
+          UI.UiText({text:"BLAAAAH"})
+        )
+      );
+
+      uiEl.appendChild(foldUi);
     }
   
 
