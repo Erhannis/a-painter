@@ -96,6 +96,14 @@ window.HandMenu = (function() {
 
         return layout;
     }
+
+    function UiTransform({position="0 0 0",rotation="0 0 0",scale="1 1 1"},...children) {
+        let container = UiEntity({},...children);
+        container.setAttribute('position', position);
+        container.setAttribute('rotation', rotation);
+        container.setAttribute('scale', scale);
+        return UiEntity({},container); //TODO We COULD set the above on each child individually
+    }
     
     /**
      * Pick whether you want to constrain rows or cols; leave the other null
@@ -433,6 +441,7 @@ window.HandMenu = (function() {
         //PageLayout: PageLayout, //TODO
         UiEntity: UiEntity,
         UiButton: UiButton,
-        UiText: UiText
+        UiText: UiText,
+        UiTransform: UiTransform
     }
 }());

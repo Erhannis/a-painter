@@ -166,13 +166,13 @@ AFRAME.registerComponent('ui', {
 
       let foldUi = UI.UiRoot(
         UI.FoldLayout({},
-          ...Array.from({length: 7}, x => 
+          ...Array.from({length: 8}, x => 
             UI.GridLayout({rows:6},
-              //...Array.from({length: 7}, x => UI.UiButton({size:[rInt(2)+1,rInt(2)+1]}))
-              ...Array.from({length: 18}, x => UI.UiButton({size:[1,1]}))
+              ...Array.from({length: 7}, x => UI.UiTransform({position:"0 0 " + rInt(2)},UI.UiButton({size:[rInt(2)+1,rInt(2)+1]})))
+              //...Array.from({length: 18}, x => UI.UiButton({size:[1,1]}))
             )
-          ),
-          UI.UiText({text:"BLAAAAH"})
+          )
+          //,UI.UiText({text:"BLAAAAH"})
         )
       );
 
