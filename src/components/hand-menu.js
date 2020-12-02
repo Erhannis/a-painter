@@ -444,20 +444,25 @@ window.HandMenu = (function() {
                 }}))
             ];
             updatePageButtons();
+            prevButton.setAttribute("asdf", "prevButton");
+            nextButton.setAttribute("asdf", "nextButton");
 
             let gridOuter;
             let gridInner;
             let pagesEntity;
-            gridOuter = GridLayout({[rowcol]:pages.length},
+            gridOuter = GridLayout({[rowcol]:buttonSpacing+2},
                 ...maybeReverse(second,
-                    gridInner = GridLayout({[rowcol]:pages.length},
+                    gridInner = GridLayout({[rowcol]:buttonSpacing+2},
                         ...tabButtons
                     ),
                     pagesEntity = UiEntity({},
                         ...pages
                     )
                 )
-            )
+            );
+            gridOuter.setAttribute("asdf", "gridOuter");
+            gridInner.setAttribute("asdf", "gridInner");
+            pagesEntity.setAttribute("asdf", "pagesEntity");
             layout.appendChild(gridOuter);
     
         }
