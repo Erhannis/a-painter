@@ -4,6 +4,11 @@
  * The size system is based on units of 1.  You can put in other numbers, but I'd expect things to behave pretty erratically.
  */
 
+/* //TODO
+Maybe have a css-like system?
+    Maybe have standard styling params, and they by default are passed on to children?
+*/
+
  /*
 UiRoot(
     FoldLayout(
@@ -23,6 +28,13 @@ UiRoot(
 
 //TODO Man, I should really nail down the name
 window.HandMenu = (function() {
+    function maybeReverse(bool, ...children) {
+        if (bool) {
+            children.reverse();
+        }
+        return children;
+    }
+
     //TODO How to change text later?
     function UiButton({oncontrollerdown, oncontrollerhold, oncontrollerup, color="#909090", text, textcolor="#000000", materials, size=[1,1]}={}) {
         let plane = UiEntity({type:"a-plane", color:color, materials:materials}); //TODO I don't know how to deal with the maxSize thing
@@ -276,22 +288,14 @@ window.HandMenu = (function() {
                 size[1] = Math.max(size[1], pageSize[1]);
             }
         }
-        let asdf = size;
         layout.getSize = function(maxSize) {
-            return asdf;
+            return size;
         };
         let second;
         if (side == "top" || side == "left") {
             second = false;
         } else {
             second = true;
-        }
-
-        function maybeReverse(bool, ...children) {
-            if (bool) {
-                children.reverse();
-            }
-            return children;
         }
 
         let hidePages = function() { //TODO Should probably keep track of which tab is active, instead
@@ -332,9 +336,132 @@ window.HandMenu = (function() {
         return layout;
     }
     
-    function PageLayout() { //TODO I'd need to deal with detecting and handling an overflow mechanism, and arrange things; it's like a special GridLayout or something
+    /**
+     * side = "top"|"bottom"|"left"|"right"
+     * 
+     * `autodistribute` means that it will create a grid with params `gridparams` - but both cols and rows are specified, as opposed to in GridLayout.
+     * `pack` remains the same - it means order is partially ignored in an attempt to fit all the items closely together.
+     * Multiple such grids are created as needed, and they are one by one filled with items from `children`.
+     * 
+     * If not `autodistribute`, then each of `children` is its own page.
+     * @param {*} param0 
+     */
+    function PageLayout({autodistribute=false, side="bottom", gridparams:{cols, rows, pack=true}={}}={},...children) {
         let layout = UiEntity();
-        //TODO
+
+        let pages;
+
+        if (autodistribute) {
+            let size = [cols,rows];
+            if (side == "top" || side == "bottom") {
+                size[1]++;
+            } else {
+                size[0]++;
+            }
+            layout.getSize = function(maxSize) {
+                return size; //TODO It occurs to me maybe I shouldn't be passing back a mutable copy of this
+            };
+
+            //TODO Do
+
+        } else {
+            // Each child is its own page
+            pages = children;
+            let size = [1,1];
+            let buttonSpacing;
+            if (side == "top" || side == "bottom") {
+                rowcol = "cols";
+                for (let i = 0; i < pages.length; i++) {
+                    let pageSize = pages[i].getSize();
+                    size[0] = Math.max(size[0], pageSize[0]);
+                    size[1] = Math.max(size[1], pageSize[1]+1);
+                }
+                buttonSpacing = size[0]-2;
+            } else {
+                rowcol = "rows";
+                for (let i = 0; i < pages.length; i++) {
+                    let pageSize = pages[i].getSize();
+                    size[0] = Math.max(size[0], pageSize[0]+1);
+                    size[1] = Math.max(size[1], pageSize[1]);
+                }
+                buttonSpacing = size[1]-2;
+            }
+            layout.getSize = function(maxSize) {
+                return size;
+            };
+
+            let second;
+            if (side == "top" || side == "left") {
+                second = false;
+            } else {
+                second = true;
+            }
+
+            let selected = 0;
+            if (pages.length > 0) {
+                pages[0].setAttribute("visible",true);
+            }
+            for (let i = 1; i < pages.length; i++) {
+                pages[i].setAttribute("visible",false);
+            }
+            selected = 0;
+
+            let prevButton;
+            let nextButton;
+            let updatePageButtons = function() {
+                if (selected > 0) {
+                    prevButton.setAttribute("visible", true);
+                }
+                if (selected < pages.length-1) {
+                    nextButton.setAttribute("visible", true);
+                }
+
+                if (selected <= 0) {
+                    prevButton.setAttribute("visible", false);
+                }
+                if (selected >= pages.length-1) {
+                    nextButton.setAttribute("visible", false);
+                }
+            };
+
+            let tabButtons = [
+                prevButton = UiButton({text:"<-", oncontrollerdown:function() {
+                    if (selected > 0) {
+                        pages[selected].setAttribute("visible", false);
+                        selected--;
+                        pages[selected].setAttribute("visible", true);
+                        updatePageButtons();
+                    }
+                }}),
+                ...Array.from({length:buttonSpacing},x => UiEntity()), //TODO Kinda wasteful
+                (nextButton = UiButton({text:"->", oncontrollerdown:function() { //NOTE Apparently you need to encase an (x = blah) in parens if it follows a ...stuff
+                    if (selected < pages.length-1) {
+                        pages[selected].setAttribute("visible", false);
+                        selected++;
+                        pages[selected].setAttribute("visible", true);
+                        updatePageButtons();
+                    }
+                }}))
+            ];
+            updatePageButtons();
+
+            let gridOuter;
+            let gridInner;
+            let pagesEntity;
+            gridOuter = GridLayout({[rowcol]:pages.length},
+                ...maybeReverse(second,
+                    gridInner = GridLayout({[rowcol]:pages.length},
+                        ...tabButtons
+                    ),
+                    pagesEntity = UiEntity({},
+                        ...pages
+                    )
+                )
+            )
+            layout.appendChild(gridOuter);
+    
+        }
+
         return layout;
     }
 
@@ -438,7 +565,7 @@ window.HandMenu = (function() {
         RowsLayout: RowsLayout,
         ColsLayout: ColsLayout,
         UiTabs: UiTabs,
-        //PageLayout: PageLayout, //TODO
+        PageLayout: PageLayout,
         UiEntity: UiEntity,
         UiButton: UiButton,
         UiText: UiText,

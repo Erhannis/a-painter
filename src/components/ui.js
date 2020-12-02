@@ -122,64 +122,25 @@ AFRAME.registerComponent('ui', {
         return Math.floor(Math.random() * Math.floor(max));
       }
   
-      /*
-      let tabsUi = UI.UiRoot(
-        UI.UiTabs({labels:["top","right","bottom","left"]},
-          UI.UiTabs({side:"top",labels:["A","B","C","D","E","F"]},
-            ...Array.from({length: 6}, x => {
-              return UI.GridLayout({cols:6}, // You'll likely want to use cols for top/bottom and rows for left/right, or the alignment is weirder than usual
-                ...Array.from({length: 7}, x => UI.UiButton({size:[rInt(3)+1,rInt(3)+1]}))
+      let pagesUi = UI.UiRoot(
+        UI.UiEntity({},
+          UI.PageLayout({},
+            ...Array.from({length: 7}, x => 
+              UI.UiEntity({},
+                UI.GridLayout({rows:6},
+                  ...Array.from({length: 7}, x => UI.UiButton({size:[rInt(2)+1,rInt(2)+1]}))
+                  //...Array.from({length: 18}, x => UI.UiButton({size:[1,1]}))
+                ),
+                UI.UiTransform({position:"0 0 0.1", scale:"0.1 0.1 0.1"},UI.UiButton({color:"#FF0000"}))
               )
-            })
-            //...Array.from({length: 6}, x => UI.UiButton({size:[rInt(3)+1,rInt(3)+1]}))
-          ),
-          UI.UiTabs({side:"right",labels:["A","B","C","D","E","F"]},
-            ...Array.from({length: 6}, x => {
-              return UI.GridLayout({rows:6},
-                ...Array.from({length: 7}, x => UI.UiButton({size:[rInt(3)+1,rInt(3)+1]}))
-              )
-            })
-            //...Array.from({length: 6}, x => UI.UiButton({size:[rInt(3)+1,rInt(3)+1]}))
-          ),
-          UI.UiTabs({side:"bottom",labels:["A","B","C","D","E","F"]},
-            ...Array.from({length: 6}, x => {
-              return UI.GridLayout({cols:6},
-                ...Array.from({length: 7}, x => UI.UiButton({size:[rInt(3)+1,rInt(3)+1]}))
-              )
-            })
-            //...Array.from({length: 6}, x => UI.UiButton({size:[rInt(3)+1,rInt(3)+1]}))
-          ),
-          UI.UiTabs({side:"left",labels:["A","B","C","D","E","F"]},
-            ...Array.from({length: 6}, x => {
-              return UI.GridLayout({rows:6},
-                ...Array.from({length: 7}, x => UI.UiButton({size:[rInt(3)+1,rInt(3)+1]}))
-              )
-            })
-            //...Array.from({length: 6}, x => UI.UiButton({size:[rInt(3)+1,rInt(3)+1]}))
-          )
-        )
-      );
-
-      tabsUi.setAttribute('position', '0 0.01 0');
-      uiEl.appendChild(tabsUi);
-*/
-
-      let foldUi = UI.UiRoot(
-        UI.FoldLayout({},
-          ...Array.from({length: 7}, x => 
-            UI.UiEntity({},
-              UI.GridLayout({rows:6},
-                ...Array.from({length: 7}, x => UI.UiButton({size:[rInt(2)+1,rInt(2)+1]}))
-                //...Array.from({length: 18}, x => UI.UiButton({size:[1,1]}))
-              ),
-              UI.UiTransform({position:"0 0 0.1", scale:"0.1 0.1 0.1"},UI.UiButton({color:"#FF0000"}))
             )
-          )
-          //,UI.UiText({text:"BLAAAAH"})
+            //,UI.UiText({text:"BLAAAAH"})
+          ),
+          UI.UiTransform({position:"0 0 0.2", scale:"0.1 0.1 0.1"},UI.UiButton({color:"#0000FF"}))
         )
       );
 
-      uiEl.appendChild(foldUi);
+      uiEl.appendChild(pagesUi);
     }
   
 
