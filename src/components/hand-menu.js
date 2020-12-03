@@ -18,7 +18,7 @@ UiRoot(
             UiButton()
         ),
         RowsLayout(),
-        UiTabs( //TODO Icons, labels
+        TabsLayout( //TODO Icons, labels
             GridLayout({rows:4}),
             UiButton()
         )
@@ -179,6 +179,10 @@ window.HandMenu = (function() {
                     let collision = false;
                     checkCollision:
                     for (let n = 0; n < second(isize); n++) {
+                        if (maxSecond != undefined && b+n >= maxSecond) {
+                            hitSecondMax = true;
+                            break placeLoop;
+                        }
                         for (let m = 0; m < this.get(b).length; m++) {
                             if (this.get(b+n)[a+m] != undefined) {
                                 collision = true;
@@ -206,6 +210,10 @@ window.HandMenu = (function() {
                         let collision = false;
                         checkCollision:
                         for (let n = 0; n < second(isize); n++) {
+                            if (maxSecond != undefined && b+n >= maxSecond) {
+                                hitSecondMax = true;
+                                break placeLoop;
+                            }    
                             for (let m = 0; m < first(isize); m++) {
                                 if (this.get(b+n)[a+m] != undefined) {
                                     collision = true;
@@ -326,7 +334,7 @@ window.HandMenu = (function() {
      * @param {*} param0 
      * @param  {...any} pages 
      */
-    function UiTabs({tabs, labels, side="top"}={}, ...pages) {
+    function TabsLayout({tabs, labels, side="top"}={}, ...pages) {
         let layout = UiEntity();
 
         let size = [1,1];
@@ -407,22 +415,55 @@ window.HandMenu = (function() {
     function PageLayout({autodistribute=false, side="bottom", gridparams:{cols, rows, pack=true}={}}={},...children) {
         let layout = UiEntity();
 
+        //TODO This is kindof a mishmash, sorry
+
         let pages;
 
+        let rowcol;
+        let fixed; //TODO Specify grid justification separately from button side?
+        let secondary;
+        if (side == "top" || side == "bottom") {
+            rowcol = "cols";
+            fixed = cols;
+            secondary = rows;
+        } else {
+            rowcol = "rows";
+            fixed = rows;
+            secondary = cols;
+        }
+
         if (autodistribute) {
-            asdf
-            let size = [cols,rows];
-            if (side == "top" || side == "bottom") {
-                size[1]++;
-            } else {
-                size[0]++;
+            pages = [];
+            let grids = [];
+            let grid;
+            let gridEmpty;
+            let buttons;
+
+            let startGrid = function() {
+                grid = GridInternal({[rowcol]:fixed});
+                gridEmpty = true;
+                grids.push(grid);
+
+                buttons = UiEntity({size:[cols,rows]}); //TODO Should it adjust for under/over size?
+                let finalSize = [cols,rows];
+                buttons.setAttribute('position', `${-finalSize[0]/2} ${finalSize[1]/2} 0`);        
+                pages.push(buttons);
             }
-            layout.getSize = function(maxSize) {
-                return size; //TODO It occurs to me maybe I shouldn't be passing back a mutable copy of this
-            };
 
-            //TODO Do
-
+            if (children.length > 0) { //TODO Have single empty page?
+                startGrid();
+            }
+            for (let i = 0; i < children.length; i++) {
+                let item = children[i];
+                if (!grid.add(item, pack, secondary)) {
+                    if (!gridEmpty) {
+                        startGrid();
+                    }
+                    grid.add(item, pack); // Force add
+                }
+                gridEmpty = false;
+                buttons.appendChild(item);
+            }
         } else {
             // Each child is its own page
             pages = children;
@@ -431,7 +472,6 @@ window.HandMenu = (function() {
         let size = [1,1];
         let buttonSpacing;
         if (side == "top" || side == "bottom") {
-            rowcol = "cols";
             for (let i = 0; i < pages.length; i++) {
                 let pageSize = pages[i].getSize();
                 size[0] = Math.max(size[0], pageSize[0]);
@@ -439,7 +479,6 @@ window.HandMenu = (function() {
             }
             buttonSpacing = size[0]-2;
         } else {
-            rowcol = "rows";
             for (let i = 0; i < pages.length; i++) {
                 let pageSize = pages[i].getSize();
                 size[0] = Math.max(size[0], pageSize[0]+1);
@@ -505,8 +544,6 @@ window.HandMenu = (function() {
             }}))
         ];
         updatePageButtons();
-        prevButton.setAttribute("asdf", "prevButton");
-        nextButton.setAttribute("asdf", "nextButton");
 
         let gridOuter;
         let gridInner;
@@ -521,10 +558,8 @@ window.HandMenu = (function() {
                 )
             )
         );
-        gridOuter.setAttribute("asdf", "gridOuter");
-        gridInner.setAttribute("asdf", "gridInner");
-        pagesEntity.setAttribute("asdf", "pagesEntity");
         layout.appendChild(gridOuter);
+        //TODO Center overall element?
     
         return layout;
     }
@@ -628,7 +663,7 @@ window.HandMenu = (function() {
         GridLayout: GridLayout,
         RowsLayout: RowsLayout,
         ColsLayout: ColsLayout,
-        UiTabs: UiTabs,
+        TabsLayout: TabsLayout,
         PageLayout: PageLayout,
         UiEntity: UiEntity,
         UiButton: UiButton,

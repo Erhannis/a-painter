@@ -17,7 +17,7 @@ if (false) {
         UI.UiButton()
         ),
         UI.RowsLayout(),
-        UI.UiTabs( //TODO Icons, labels
+        UI.TabsLayout( //TODO Icons, labels
         UI.GridLayout({rows:4}),
         UI.UiButton()
         )
@@ -126,8 +126,8 @@ if (false) {
 
 if (false) {
     let tabsUi = UI.UiRoot(
-        UI.UiTabs({labels:["top","right","bottom","left"]},
-          UI.UiTabs({side:"top",labels:["A","B","C","D","E","F"]},
+        UI.TabsLayout({labels:["top","right","bottom","left"]},
+          UI.TabsLayout({side:"top",labels:["A","B","C","D","E","F"]},
             ...Array.from({length: 6}, x => {
               return UI.GridLayout({cols:6}, // You'll likely want to use cols for top/bottom and rows for left/right, or the alignment is weirder than usual
                 ...Array.from({length: 7}, x => UI.UiButton({size:[rInt(3)+1,rInt(3)+1]}))
@@ -135,7 +135,7 @@ if (false) {
             })
             //...Array.from({length: 6}, x => UI.UiButton({size:[rInt(3)+1,rInt(3)+1]}))
           ),
-          UI.UiTabs({side:"right",labels:["A","B","C","D","E","F"]},
+          UI.TabsLayout({side:"right",labels:["A","B","C","D","E","F"]},
             ...Array.from({length: 6}, x => {
               return UI.GridLayout({rows:6},
                 ...Array.from({length: 7}, x => UI.UiButton({size:[rInt(3)+1,rInt(3)+1]}))
@@ -143,7 +143,7 @@ if (false) {
             })
             //...Array.from({length: 6}, x => UI.UiButton({size:[rInt(3)+1,rInt(3)+1]}))
           ),
-          UI.UiTabs({side:"bottom",labels:["A","B","C","D","E","F"]},
+          UI.TabsLayout({side:"bottom",labels:["A","B","C","D","E","F"]},
             ...Array.from({length: 6}, x => {
               return UI.GridLayout({cols:6},
                 ...Array.from({length: 7}, x => UI.UiButton({size:[rInt(3)+1,rInt(3)+1]}))
@@ -151,7 +151,7 @@ if (false) {
             })
             //...Array.from({length: 6}, x => UI.UiButton({size:[rInt(3)+1,rInt(3)+1]}))
           ),
-          UI.UiTabs({side:"left",labels:["A","B","C","D","E","F"]},
+          UI.TabsLayout({side:"left",labels:["A","B","C","D","E","F"]},
             ...Array.from({length: 6}, x => {
               return UI.GridLayout({rows:6},
                 ...Array.from({length: 7}, x => UI.UiButton({size:[rInt(3)+1,rInt(3)+1]}))
@@ -186,9 +186,71 @@ if (false) {
 }
 
 if (false) {
-    
+    let pagesUi = UI.UiRoot(
+        UI.UiEntity({},
+          UI.PageLayout({side:"left"},
+            ...Array.from({length: 7}, x => 
+                UI.GridLayout({rows:6},
+                  ...Array.from({length: 7}, x => UI.UiButton({size:[rInt(2)+1,rInt(2)+1]}))
+                  //...Array.from({length: 18}, x => UI.UiButton({size:[1,1]}))
+                )
+            )
+            //,UI.UiText({text:"BLAAAAH"})
+          ),
+          UI.UiTransform({position:"0 0 0.2", scale:"0.1 0.1 0.1"},UI.UiButton({color:"#0000FF"}))
+        )
+      );
+
+      uiEl.appendChild(pagesUi);
+}
+
+if (false) {
+    let pagesUi = UI.UiRoot(
+        UI.UiEntity({},
+          UI.PageLayout({side:"left",autodistribute:true,gridparams:{cols:6,rows:10}},
+            //...Array.from({length: 7}, x => UI.UiButton({size:[rInt(2)+1,rInt(2)+1]}))
+            ...Array.from({length: 100}, x => UI.UiButton({size:[1,1]}))
+          ),
+          UI.UiTransform({position:"0 0 0.2", scale:"0.1 0.1 0.1"},UI.UiButton({color:"#0000FF"}))
+        )
+      );
+
+      uiEl.appendChild(pagesUi);
+}
+
+if (false) {
+
 }
 
 if (false) {
     
 }
+
+if (false) {
+
+}
+
+if (false) {
+
+}
+
+if (false) {
+
+}
+
+if (false) {
+
+}
+
+if (false) {
+
+}
+
+if (false) {
+
+}
+
+if (false) {
+
+}
+

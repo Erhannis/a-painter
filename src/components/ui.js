@@ -122,17 +122,13 @@ AFRAME.registerComponent('ui', {
         return Math.floor(Math.random() * Math.floor(max));
       }
   
-      if (false) {
+      if (true) {
         let pagesUi = UI.UiRoot(
           UI.UiEntity({},
-            UI.PageLayout({side:"left"},
-              ...Array.from({length: 7}, x => 
-                  UI.GridLayout({rows:6},
-                    ...Array.from({length: 7}, x => UI.UiButton({size:[rInt(2)+1,rInt(2)+1]}))
-                    //...Array.from({length: 18}, x => UI.UiButton({size:[1,1]}))
-                  )
-              )
-              //,UI.UiText({text:"BLAAAAH"})
+            UI.PageLayout({side:"right",autodistribute:true,gridparams:{cols:4,rows:6}},
+              //...Array.from({length: 200}, x => UI.UiButton({size:[rInt(5)+1,rInt(5)+1]}))
+              //...Array.from({length: 60}, x => UI.UiButton({size:[1,1]}))
+              ...Array.from({length: 10}, x => UI.UiButton({size:[8,1]}))
             ),
             UI.UiTransform({position:"0 0 0.2", scale:"0.1 0.1 0.1"},UI.UiButton({color:"#0000FF"}))
           )
@@ -141,46 +137,48 @@ AFRAME.registerComponent('ui', {
         uiEl.appendChild(pagesUi);
       }
 
-      if (true) {
-        let tabs = [];
-        let hideTabs = function() { //TODO Should probably keep track of which tab is active
-          for (let i = 0; i < tabs.length; i++) {
-            tabs[i].setAttribute("visible",false);
-          }
-        }
-    
-        let gridInner;
-        let gridOuter;
-        let tabsEntity;
-    
+      if (false) {
         let tabsUi = UI.UiRoot(
-          gridOuter = UI.GridLayout({rows:6},
-            gridInner = UI.GridLayout({rows:6},
-              UI.UiButton({text:"A",oncontrollerdown:(function() {hideTabs(); tabs[0].setAttribute("visible", true); console.log(0, tabs[0].getSize());})}),
-              UI.UiButton({text:"B",oncontrollerdown:(function() {hideTabs(); tabs[1].setAttribute("visible", true); console.log(1, tabs[1].getSize());})}),
-              UI.UiButton({text:"C",oncontrollerdown:(function() {hideTabs(); tabs[2].setAttribute("visible", true); console.log(2, tabs[2].getSize());})}),
-              UI.UiButton({text:"D",oncontrollerdown:(function() {hideTabs(); tabs[3].setAttribute("visible", true); console.log(3, tabs[3].getSize());})}),
-              UI.UiButton({text:"E",oncontrollerdown:(function() {hideTabs(); tabs[4].setAttribute("visible", true); console.log(4, tabs[4].getSize());})}),
-              UI.UiButton({text:"F",oncontrollerdown:(function() {hideTabs(); tabs[5].setAttribute("visible", true); console.log(5, tabs[5].getSize());})})
-            ),
-            tabsEntity = UI.UiEntity({},
-              ...Array.from({length: 6}, x => {
-                return tabs[tabs.length] = UI.GridLayout({rows:6},
-                  ...Array.from({length: 7}, x => UI.UiButton({size:[rInt(3)+1,rInt(3)+1]}))
-                )
-              })
-              //...Array.from({length: 6}, x => tabs[tabs.length] = UI.UiButton({size:[rInt(3)+1,rInt(3)+1]}))
+            UI.TabsLayout({labels:["top","right","bottom","left"]},
+              UI.TabsLayout({side:"top",labels:["A","B","C","D","E","F"]},
+                ...Array.from({length: 6}, x => {
+                  return UI.GridLayout({cols:6}, // You'll likely want to use cols for top/bottom and rows for left/right, or the alignment is weirder than usual
+                    ...Array.from({length: 7}, x => UI.UiButton({size:[rInt(3)+1,rInt(3)+1]}))
+                  )
+                })
+                //...Array.from({length: 6}, x => UI.UiButton({size:[rInt(3)+1,rInt(3)+1]}))
+              ),
+              UI.TabsLayout({side:"right",labels:["A","B","C","D","E","F"]},
+                ...Array.from({length: 6}, x => {
+                  return UI.GridLayout({rows:6},
+                    ...Array.from({length: 7}, x => UI.UiButton({size:[rInt(3)+1,rInt(3)+1]}))
+                  )
+                })
+                //...Array.from({length: 6}, x => UI.UiButton({size:[rInt(3)+1,rInt(3)+1]}))
+              ),
+              UI.TabsLayout({side:"bottom",labels:["A","B","C","D","E","F"]},
+                ...Array.from({length: 6}, x => {
+                  return UI.GridLayout({cols:6},
+                    ...Array.from({length: 7}, x => UI.UiButton({size:[rInt(3)+1,rInt(3)+1]}))
+                  )
+                })
+                //...Array.from({length: 6}, x => UI.UiButton({size:[rInt(3)+1,rInt(3)+1]}))
+              ),
+              UI.TabsLayout({side:"left",labels:["A","B","C","D","E","F"]},
+                ...Array.from({length: 6}, x => {
+                  return UI.GridLayout({rows:6},
+                    ...Array.from({length: 7}, x => UI.UiButton({size:[rInt(3)+1,rInt(3)+1]}))
+                  )
+                })
+                //...Array.from({length: 6}, x => UI.UiButton({size:[rInt(3)+1,rInt(3)+1]}))
+              )
             )
-          )
-        );
+          );
     
-        console.log("outer",gridOuter.getSize());
-        console.log("inner",gridInner.getSize());
-        console.log("tabs",tabsEntity.getSize());
-    
-        tabsUi.setAttribute('position', '0 0.01 0');
-        uiEl.appendChild(tabsUi);
-      }      
+          tabsUi.setAttribute('position', '0 0.01 0');
+          uiEl.appendChild(tabsUi);
+    }
+
     }
   
 
