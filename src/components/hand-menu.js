@@ -2,6 +2,10 @@
  * General info
  * 
  * The size system is based on units of 1.  You can put in other numbers, but I'd expect things to behave pretty erratically.
+ * 
+ * An entity's position/rotation/scale is controlled by its parent, not by the entity.
+ * 
+ * Some params are passed to children, but it's kinda inconsistent which ones.  I'm considering revamping that part of the system.
  */
 
 /* //TODO
@@ -109,12 +113,28 @@ window.HandMenu = (function() {
         return layout;
     }
 
-    function UiTransform({position="0 0 0",rotation="0 0 0",scale="1 1 1"},...children) {
+    function UiTransform({position="0 0 0",rotation="0 0 0",scale="1 1 1",roundSizeUp=true},...children) {
         let container = UiEntity({},...children);
         container.setAttribute('position', position);
         container.setAttribute('rotation', rotation);
+        if (typeof scale === 'string' || scale instanceof String) { //TODO Didn't realize until now you could use a map to set positions etc.  Now I'm conflicted on whether to change everything - possibly to arrays, haha.
+            scale = scale.split(" ").map(s => Number.parseFloat(s))
+        }
+        if (Array.isArray(scale)) {
+            scale = {x:scale[0], y:scale[1], z:scale[2]};
+        }
         container.setAttribute('scale', scale);
-        return UiEntity({},container); //TODO We COULD set the above on each child individually
+
+        let ui = UiEntity({},container); //TODO We COULD set the above on each child individually
+        ui.getSize = function(maxSize) {
+            let size = container.getSize();
+            if (roundSizeUp) { //TODO This is a bit of a hack; it'd be better for everything to just handle fractional sizes properly...but that's hard
+                return [Math.ceil(size[0]*scale.x), Math.ceil(size[1]*scale.y)];
+            } else {
+                return [size[0]*scale.x, size[1]*scale.y];
+            }
+        };
+        return ui;
     }
     
     //PRIVATE
@@ -163,8 +183,9 @@ window.HandMenu = (function() {
          * @param {*} autotrim - whether to run this.trim() on limit-hit (because doing so probably added one or more empty lines)
          */
         grid.add = function(item, pack, maxSecond, autotrim=true) { //TODO Might make more sense to put `maxSecond` on the "constructor"
+            //TODO I have reason to suspect that (non-integer) sizes < 1 count as non-existent, kinda.  Also may affect overhang, like the .5 of 2.5
             let isize = item.getSize();
-    
+
             let start;
             if (pack) {
                 start = 0;

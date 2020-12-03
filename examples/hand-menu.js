@@ -234,7 +234,14 @@ if (false) {
 }
 
 if (false) {
-    
+    let gridsUi = UI.UiRoot(
+        UI.GridLayout({cols:10},
+          //...Array.from({length: 100}, x => UI.UiButton({size:[rInt(3)+1,rInt(3)+1]}))
+          ...Array.from({length: 100}, x => UI.UiButton({size:[Math.random()*3,Math.random()*3]})) // Non-integer sizes are kinda buggy
+        )
+      );
+
+      uiEl.appendChild(gridsUi);
 }
 
 if (false) {

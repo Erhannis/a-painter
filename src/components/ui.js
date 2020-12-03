@@ -39,7 +39,7 @@ AFRAME.registerComponent('ui', {
       fog: false,
       src: 'shader:flat'
     });
-    uiEl.setAttribute('obj-model', 'obj:#uiobj'); //TODO
+    //uiEl.setAttribute('obj-model', 'obj:#uiobj'); //TODO
     uiEl.setAttribute('position', '0 0.04 -0.15');
 
     uiEl.setAttribute('scale', '0 0 0');
@@ -55,13 +55,13 @@ AFRAME.registerComponent('ui', {
       }
   
       let pagesUi = UI.UiRoot(
-        UI.UiEntity({},
-          UI.PageLayout({side:"left",autodistribute:true,gridparams:{cols:4,rows:6}},
-            ...Array.from({length: 200}, x => UI.UiButton({size:[rInt(5)+1,rInt(5)+1]}))
-            //...Array.from({length: 60}, x => UI.UiButton({size:[1,1]}))
-            //...Array.from({length: 10}, x => UI.UiButton({size:[8,1]}))
-          )//,
-          //UI.UiTransform({position:"0 0 0.2", scale:"0.1 0.1 0.1"},UI.UiButton({color:"#0000FF"}))
+        UI.PageLayout({side:"left",autodistribute:true,gridparams:{cols:4,rows:6}},
+          ...Array.from({length: 200}, x => UI.UiTransform({scale:[1/6,1/6,1]},
+            UI.GridLayout({cols:4},
+              //...Array.from({length: 4}, x => UI.UiButton({size:[rInt(5)+1,rInt(5)+1]}))
+              ...Array.from({length: 4}, x => UI.UiButton({size:[rInt(2)+1,rInt(2)+1]}))
+            )
+          ))
         )
       );
 
