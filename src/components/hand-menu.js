@@ -118,7 +118,7 @@ window.HandMenu = (function() {
     }
     
     //PRIVATE
-    function GridInternal({cols=6, rows}={}) {
+    function GridInternal({cols, rows}={}) {
         let grid = [];
         grid.placementIndex = 0;
 
@@ -153,6 +153,9 @@ window.HandMenu = (function() {
 
         /**
          * Returns true if add was successful, false if it went over the maxSecond limit (or something anomalous occurred and it didn't get placed).
+         * Note that if an item would not be able to fit in an empty grid, and nothing else is pushing it in the cramped direction, then the item will
+         * be placed regardless.  E.g., a 4x4 grid (cols primary, rows secondary), with the left col full of a 1x4, and you try to add a 5x1, fails.
+         * But a 4x4 grid, with a 1x3 on the left, and you add a 5x1, will succeed, with the 5x1 placed along the bottom row, sticking 1x1 off the right.
          * 
          * @param {*} item - item to add
          * @param {*} pack - try to pack it in around other things? 
@@ -174,12 +177,12 @@ window.HandMenu = (function() {
             placeLoop:
             for (let b = start; true; b++) {
                 if (this.get(b).length+1-first(isize) <= 0) {
-                    // Thing is too large
+                    // Thing is too large in the primary direction
                     let a = 0;
                     let collision = false;
                     checkCollision:
                     for (let n = 0; n < second(isize); n++) {
-                        if (maxSecond != undefined && b+n >= maxSecond) {
+                        if (maxSecond != undefined && b+n >= maxSecond && b > 0) { // If b == 0, this is as much room as we get
                             hitSecondMax = true;
                             break placeLoop;
                         }
@@ -210,7 +213,7 @@ window.HandMenu = (function() {
                         let collision = false;
                         checkCollision:
                         for (let n = 0; n < second(isize); n++) {
-                            if (maxSecond != undefined && b+n >= maxSecond) {
+                            if (maxSecond != undefined && b+n >= maxSecond && b > 0) { // If b == 0, this is as much room as we get
                                 hitSecondMax = true;
                                 break placeLoop;
                             }    
@@ -456,7 +459,7 @@ window.HandMenu = (function() {
             for (let i = 0; i < children.length; i++) {
                 let item = children[i];
                 if (!grid.add(item, pack, secondary)) {
-                    if (!gridEmpty) {
+                    if (!gridEmpty) { // This should no longer be necessary, but should still technically be correct
                         startGrid();
                     }
                     grid.add(item, pack); // Force add
