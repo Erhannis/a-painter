@@ -47,74 +47,6 @@ AFRAME.registerComponent('ui', {
     uiEl.classList.add('apainter-ui');
     el.appendChild(uiEl);
 
-    //TODO Hmm, do I shrink/rotate the root element, or every leaf element?  ...One root, I think.
-    let buttons = document.createElement('a-entity');
-    buttons.setAttribute('rotation', '-90 0 0');
-    buttons.setAttribute('scale', '0.05 0.05 0.05');
-    buttons.setAttribute('position', '0.2 0.2 0');
-    {
-      let plane = document.createElement('a-plane');
-      plane.setAttribute('width', 0.9);
-      plane.setAttribute('height', 0.9);
-      plane.setAttribute('color', '#909090');
-      plane.setAttribute('position', '0 0 0');
-      let t = this;
-      plane.oncontrollerdown = function(object, position) {
-        plane.setAttribute('visible', !plane.getAttribute('visible'));
-        console.log("button visible: " + plane.getAttribute('visible'));
-      };
-      // Note that oncontrollerhold is NOT called the first time - it's down, THEN hold (many times), THEN up.
-      plane.oncontrollerhold = null;
-      plane.oncontrollerup = null;
-      buttons.appendChild(plane);
-    }
-    {
-      let plane = document.createElement('a-plane');
-      plane.setAttribute('width', 0.9);
-      plane.setAttribute('height', 0.9);
-      plane.setAttribute('color', '#909090');
-      plane.setAttribute('position', '1 0 0');
-      let t = this;
-      plane.oncontrollerdown = function(object, position) {
-        t.playSound('sound1');
-      };
-      // Note that oncontrollerhold is NOT called the first time - it's down, THEN hold (many times), THEN up.
-      plane.oncontrollerhold = null;
-      plane.oncontrollerup = null;
-      buttons.appendChild(plane);
-    }
-    {
-      let plane = document.createElement('a-plane');
-      plane.setAttribute('width', 0.9);
-      plane.setAttribute('height', 0.9);
-      plane.setAttribute('color', '#909090');
-      plane.setAttribute('position', '0 1 0');
-      let t = this;
-      plane.oncontrollerdown = function(object, position) {
-        t.playSound('sound2');
-      };
-      // Note that oncontrollerhold is NOT called the first time - it's down, THEN hold (many times), THEN up.
-      plane.oncontrollerhold = null;
-      plane.oncontrollerup = null;
-      buttons.appendChild(plane);
-    }
-    {
-      let plane = document.createElement('a-plane');
-      plane.setAttribute('width', 0.9);
-      plane.setAttribute('height', 0.9);
-      plane.setAttribute('color', '#909090');
-      plane.setAttribute('position', '2 2 0');
-      let t = this;
-      plane.oncontrollerdown = function(object, position) {
-        t.playSound('sound3');
-      };
-      // Note that oncontrollerhold is NOT called the first time - it's down, THEN hold (many times), THEN up.
-      plane.oncontrollerhold = null;
-      plane.oncontrollerup = null;
-      buttons.appendChild(plane);
-    }
-    //uiEl.appendChild(buttons);
-
     {
       let UI = HandMenu;
 
@@ -122,63 +54,18 @@ AFRAME.registerComponent('ui', {
         return Math.floor(Math.random() * Math.floor(max));
       }
   
-      if (true) {
-        let pagesUi = UI.UiRoot(
-          UI.UiEntity({},
-            UI.PageLayout({side:"left",autodistribute:true,gridparams:{cols:4,rows:6}},
-              ...Array.from({length: 200}, x => UI.UiButton({size:[rInt(5)+1,rInt(5)+1]}))
-              //...Array.from({length: 60}, x => UI.UiButton({size:[1,1]}))
-              //...Array.from({length: 10}, x => UI.UiButton({size:[8,1]}))
-            )//,
-            //UI.UiTransform({position:"0 0 0.2", scale:"0.1 0.1 0.1"},UI.UiButton({color:"#0000FF"}))
-          )
-        );
+      let pagesUi = UI.UiRoot(
+        UI.UiEntity({},
+          UI.PageLayout({side:"left",autodistribute:true,gridparams:{cols:4,rows:6}},
+            ...Array.from({length: 200}, x => UI.UiButton({size:[rInt(5)+1,rInt(5)+1]}))
+            //...Array.from({length: 60}, x => UI.UiButton({size:[1,1]}))
+            //...Array.from({length: 10}, x => UI.UiButton({size:[8,1]}))
+          )//,
+          //UI.UiTransform({position:"0 0 0.2", scale:"0.1 0.1 0.1"},UI.UiButton({color:"#0000FF"}))
+        )
+      );
 
-        uiEl.appendChild(pagesUi);
-      }
-
-      if (false) {
-        let tabsUi = UI.UiRoot(
-            UI.TabsLayout({labels:["top","right","bottom","left"]},
-              UI.TabsLayout({side:"top",labels:["A","B","C","D","E","F"]},
-                ...Array.from({length: 6}, x => {
-                  return UI.GridLayout({cols:6}, // You'll likely want to use cols for top/bottom and rows for left/right, or the alignment is weirder than usual
-                    ...Array.from({length: 7}, x => UI.UiButton({size:[rInt(3)+1,rInt(3)+1]}))
-                  )
-                })
-                //...Array.from({length: 6}, x => UI.UiButton({size:[rInt(3)+1,rInt(3)+1]}))
-              ),
-              UI.TabsLayout({side:"right",labels:["A","B","C","D","E","F"]},
-                ...Array.from({length: 6}, x => {
-                  return UI.GridLayout({rows:6},
-                    ...Array.from({length: 7}, x => UI.UiButton({size:[rInt(3)+1,rInt(3)+1]}))
-                  )
-                })
-                //...Array.from({length: 6}, x => UI.UiButton({size:[rInt(3)+1,rInt(3)+1]}))
-              ),
-              UI.TabsLayout({side:"bottom",labels:["A","B","C","D","E","F"]},
-                ...Array.from({length: 6}, x => {
-                  return UI.GridLayout({cols:6},
-                    ...Array.from({length: 7}, x => UI.UiButton({size:[rInt(3)+1,rInt(3)+1]}))
-                  )
-                })
-                //...Array.from({length: 6}, x => UI.UiButton({size:[rInt(3)+1,rInt(3)+1]}))
-              ),
-              UI.TabsLayout({side:"left",labels:["A","B","C","D","E","F"]},
-                ...Array.from({length: 6}, x => {
-                  return UI.GridLayout({rows:6},
-                    ...Array.from({length: 7}, x => UI.UiButton({size:[rInt(3)+1,rInt(3)+1]}))
-                  )
-                })
-                //...Array.from({length: 6}, x => UI.UiButton({size:[rInt(3)+1,rInt(3)+1]}))
-              )
-            )
-          );
-    
-          tabsUi.setAttribute('position', '0 0.01 0');
-          uiEl.appendChild(tabsUi);
-    }
-
+      uiEl.appendChild(pagesUi);
     }
   
 
