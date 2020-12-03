@@ -39,7 +39,7 @@ AFRAME.registerComponent('ui', {
       fog: false,
       src: 'shader:flat'
     });
-    //uiEl.setAttribute('obj-model', 'obj:#uiobj'); //TODO
+    uiEl.setAttribute('obj-model', 'obj:#uiobj'); //TODO
     uiEl.setAttribute('position', '0 0.04 -0.15');
 
     uiEl.setAttribute('scale', '0 0 0');
@@ -751,13 +751,10 @@ AFRAME.registerComponent('ui', {
       materials.normal = object.material;
       materials.hover = object.material.clone();
       materials.hover.color = [1,0,0]; //TODO Optionize
-      //materials.hover.map = this.system.hoverTexture;
       materials.selected = object.material.clone();
       materials.selected.color = [0.9,0.6,0.6];
-      //materials.selected.map = this.system.pressedTexture;
       materials.pressed = object.material.clone();
       materials.pressed.color = [1,0.8,0.8];
-      //materials.pressed.map = this.system.pressedTexture;
     }
     this.highlightMaterials[buttonName] = materials;
   },

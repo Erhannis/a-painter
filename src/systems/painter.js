@@ -17,7 +17,7 @@ AFRAME.registerSystem('painter', {
           'vive-controls': {
             'axis.move': 'changeBrushSizeInc',
             'trackpad.touchstart': 'startChangeBrushSize',
-            'menu.down': 'toggleMenu',
+            'menu.down': 'toggleMenu', //TODO Important
 
             // Teleport
             'trackpad.down': 'aim',
