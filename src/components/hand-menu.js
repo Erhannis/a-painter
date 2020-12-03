@@ -117,21 +117,31 @@ window.HandMenu = (function() {
         return UiEntity({},container); //TODO We COULD set the above on each child individually
     }
     
-    /**
-     * Pick whether you want to constrain rows or cols; leave the other null
-     * @param {*} cols 
-     * @param {*} rows 
-     * @param {*} pack Ignore order in favor of tighter packing
-     */
-    function GridLayout({cols, rows, pack=true}={},...children) {
-        let layout = UiEntity();
-        let buttons = UiEntity();
+    //PRIVATE
+    function GridInternal({cols=6, rows}={}) {
+        let grid = [];
+        grid.placementIndex = 0;
+
         let size;
         let fixed;
         let first; // first to be traversed - second coord, really
         let second; // opposite
-        let grid = [];
-        grid.placementIndex = 0;
+        if (rows == null || rows == undefined) {
+            // Many rows
+            // fixed cols
+            size = cols;
+            fixed = "cols";
+            first = (s => s[0]);
+            second = (s => s[1]);
+        } else {
+            // Many cols
+            // fixed rows
+            size = rows;
+            fixed = "rows";
+            first = (s => s[1]);
+            second = (s => s[0]);
+        }
+
         grid.get = function(i) {
             let a = this[i];
             if (a == undefined) {
@@ -139,8 +149,17 @@ window.HandMenu = (function() {
                 this[i] = a;
             }
             return a;
-        };
-        grid.add = function(item, pack) {
+        }
+
+        /**
+         * Returns true if add was successful, false if it went over the maxSecond limit (or something anomalous occurred and it didn't get placed).
+         * 
+         * @param {*} item - item to add
+         * @param {*} pack - try to pack it in around other things? 
+         * @param {*} maxSecond - maximum secondary dimension (the direction that fills up more gradually, like top-to-bottom on a page of English).  Leave undefined for no limit.
+         * @param {*} autotrim - whether to run this.trim() on limit-hit (because doing so probably added one or more empty lines)
+         */
+        grid.add = function(item, pack, maxSecond, autotrim=true) { //TODO Might make more sense to put `maxSecond` on the "constructor"
             let isize = item.getSize();
     
             let start;
@@ -151,6 +170,7 @@ window.HandMenu = (function() {
             }
     
             let placed = false;
+            let hitSecondMax = false;
             placeLoop:
             for (let b = start; true; b++) {
                 if (this.get(b).length+1-first(isize) <= 0) {
@@ -160,7 +180,7 @@ window.HandMenu = (function() {
                     checkCollision:
                     for (let n = 0; n < second(isize); n++) {
                         for (let m = 0; m < this.get(b).length; m++) {
-                            if (grid.get(b+n)[a+m] != undefined) {
+                            if (this.get(b+n)[a+m] != undefined) {
                                 collision = true;
                                 break checkCollision;
                             }
@@ -169,7 +189,7 @@ window.HandMenu = (function() {
                     if (!collision) {
                         for (let n = 0; n < second(isize); n++) {
                             for (let m = 0; m < this.get(b).length; m++) {
-                                grid.get(b+n)[a+m] = item;
+                                this.get(b+n)[a+m] = item;
                             }
                         }
                         if (fixed == "cols") {
@@ -187,7 +207,7 @@ window.HandMenu = (function() {
                         checkCollision:
                         for (let n = 0; n < second(isize); n++) {
                             for (let m = 0; m < first(isize); m++) {
-                                if (grid.get(b+n)[a+m] != undefined) {
+                                if (this.get(b+n)[a+m] != undefined) {
                                     collision = true;
                                     break checkCollision;
                                 }
@@ -196,7 +216,7 @@ window.HandMenu = (function() {
                         if (!collision) {
                             for (let n = 0; n < second(isize); n++) {
                                 for (let m = 0; m < first(isize); m++) {
-                                    grid.get(b+n)[a+m] = item;
+                                    this.get(b+n)[a+m] = item;
                                 }
                             }
                             if (fixed == "cols") {
@@ -212,14 +232,56 @@ window.HandMenu = (function() {
                 }
             }
             if (!placed) {
-                console.error("WAT Didn't place grid item?");
+                if (!hitSecondMax) {
+                    console.error("WAT Didn't place grid item?");
+                }
+                if (autotrim) { //TODO Do on erroneous non-placement?
+                    this.trim();
+                }
+                return false;
             }
-        };
+            return true;
+        }
+
+        /**
+         * Trim off trailing empty lines.  Returns number removed, for funsies.
+         */
+        grid.trim = function() {
+            let count = 0;
+            while (this.length > 0) {
+                let i = this.length-1;
+                for (let j = 0; j < this[i].length; j++) {
+                    if (this[i][j] != undefined) {
+                        return count;
+                    }
+                }
+                this.pop();
+                count++;
+            }
+            return count;
+        }
+
+        return grid;
+    }
+
+    /**
+     * Pick whether you want to constrain rows or cols; leave the other null
+     * @param {*} cols 
+     * @param {*} rows 
+     * @param {*} pack Ignore order in favor of tighter packing
+     */
+    function GridLayout({cols, rows, pack=true}={},...children) {
+        let layout = UiEntity();
+        let buttons = UiEntity();
+        let size;
+        let fixed;
+        let grid = GridInternal({cols:cols, rows:rows});
+        
         layout.getSize = function(maxSize) {
             if (fixed == "cols") {
-                return [size, grid.length]; //TODO May not be quite accurate at the ends
+                return [size, grid.length]; //TODO May not be quite accurate at the ends - run grid.trim(), I guess?
             } else {
-                return [grid.length, size]; //TODO May not be quite accurate at the ends
+                return [grid.length, size]; //TODO May not be quite accurate at the ends - run grid.trim(), I guess?
             }
         };
 
@@ -228,18 +290,13 @@ window.HandMenu = (function() {
             // fixed cols
             size = cols;
             fixed = "cols";
-            first = (s => s[0]);
-            second = (s => s[1]);
-            //buttons.setAttribute('position', `${-cols/2} ${0-0} 0`); //TODO How far up?
         } else {
             // Many cols
             // fixed rows
             size = rows;
             fixed = "rows";
-            first = (s => s[1]);
-            second = (s => s[0]);
-            //buttons.setAttribute('position', `${0} ${rows/2-0} 0`); //TODO Ditto
         }
+
         let items = [...children];
         items.reverse();
         while (items.length > 0) {
@@ -248,6 +305,7 @@ window.HandMenu = (function() {
             buttons.appendChild(item);
         }
         layout.appendChild(buttons);
+        grid.trim();
         let finalSize = layout.getSize();
         buttons.setAttribute('position', `${-finalSize[0]/2} ${finalSize[1]/2} 0`);
         return layout;
@@ -352,6 +410,7 @@ window.HandMenu = (function() {
         let pages;
 
         if (autodistribute) {
+            asdf
             let size = [cols,rows];
             if (side == "top" || side == "bottom") {
                 size[1]++;
@@ -367,106 +426,106 @@ window.HandMenu = (function() {
         } else {
             // Each child is its own page
             pages = children;
-            let size = [1,1];
-            let buttonSpacing;
-            if (side == "top" || side == "bottom") {
-                rowcol = "cols";
-                for (let i = 0; i < pages.length; i++) {
-                    let pageSize = pages[i].getSize();
-                    size[0] = Math.max(size[0], pageSize[0]);
-                    size[1] = Math.max(size[1], pageSize[1]+1);
-                }
-                buttonSpacing = size[0]-2;
-            } else {
-                rowcol = "rows";
-                for (let i = 0; i < pages.length; i++) {
-                    let pageSize = pages[i].getSize();
-                    size[0] = Math.max(size[0], pageSize[0]+1);
-                    size[1] = Math.max(size[1], pageSize[1]);
-                }
-                buttonSpacing = size[1]-2;
+        }
+        
+        let size = [1,1];
+        let buttonSpacing;
+        if (side == "top" || side == "bottom") {
+            rowcol = "cols";
+            for (let i = 0; i < pages.length; i++) {
+                let pageSize = pages[i].getSize();
+                size[0] = Math.max(size[0], pageSize[0]);
+                size[1] = Math.max(size[1], pageSize[1]+1);
             }
-            layout.getSize = function(maxSize) {
-                return size;
-            };
-
-            let second;
-            if (side == "top" || side == "left") {
-                second = false;
-            } else {
-                second = true;
+            buttonSpacing = size[0]-2;
+        } else {
+            rowcol = "rows";
+            for (let i = 0; i < pages.length; i++) {
+                let pageSize = pages[i].getSize();
+                size[0] = Math.max(size[0], pageSize[0]+1);
+                size[1] = Math.max(size[1], pageSize[1]);
             }
+            buttonSpacing = size[1]-2;
+        }
+        layout.getSize = function(maxSize) {
+            return size;
+        };
 
-            let selected = 0;
-            if (pages.length > 0) {
-                pages[0].setAttribute("visible",true);
-            }
-            for (let i = 1; i < pages.length; i++) {
-                pages[i].setAttribute("visible",false);
-            }
-            selected = 0;
-
-            let prevButton;
-            let nextButton;
-            let updatePageButtons = function() {
-                if (selected > 0) {
-                    prevButton.setAttribute("visible", true);
-                }
-                if (selected < pages.length-1) {
-                    nextButton.setAttribute("visible", true);
-                }
-
-                if (selected <= 0) {
-                    prevButton.setAttribute("visible", false);
-                }
-                if (selected >= pages.length-1) {
-                    nextButton.setAttribute("visible", false);
-                }
-            };
-
-            let tabButtons = [
-                prevButton = UiButton({text:"<-", oncontrollerdown:function() {
-                    if (selected > 0) {
-                        pages[selected].setAttribute("visible", false);
-                        selected--;
-                        pages[selected].setAttribute("visible", true);
-                        updatePageButtons();
-                    }
-                }}),
-                ...Array.from({length:buttonSpacing},x => UiEntity()), //TODO Kinda wasteful
-                (nextButton = UiButton({text:"->", oncontrollerdown:function() { //NOTE Apparently you need to encase an (x = blah) in parens if it follows a ...stuff
-                    if (selected < pages.length-1) {
-                        pages[selected].setAttribute("visible", false);
-                        selected++;
-                        pages[selected].setAttribute("visible", true);
-                        updatePageButtons();
-                    }
-                }}))
-            ];
-            updatePageButtons();
-            prevButton.setAttribute("asdf", "prevButton");
-            nextButton.setAttribute("asdf", "nextButton");
-
-            let gridOuter;
-            let gridInner;
-            let pagesEntity;
-            gridOuter = GridLayout({[rowcol]:buttonSpacing+2},
-                ...maybeReverse(second,
-                    gridInner = GridLayout({[rowcol]:buttonSpacing+2},
-                        ...tabButtons
-                    ),
-                    pagesEntity = UiEntity({},
-                        ...pages
-                    )
-                )
-            );
-            gridOuter.setAttribute("asdf", "gridOuter");
-            gridInner.setAttribute("asdf", "gridInner");
-            pagesEntity.setAttribute("asdf", "pagesEntity");
-            layout.appendChild(gridOuter);
-    
+        let second;
+        if (side == "top" || side == "left") {
+            second = false;
+        } else {
+            second = true;
         }
 
+        let selected = 0;
+        if (pages.length > 0) {
+            pages[0].setAttribute("visible",true);
+        }
+        for (let i = 1; i < pages.length; i++) {
+            pages[i].setAttribute("visible",false);
+        }
+        selected = 0;
+
+        let prevButton;
+        let nextButton;
+        let updatePageButtons = function() {
+            if (selected > 0) {
+                prevButton.setAttribute("visible", true);
+            }
+            if (selected < pages.length-1) {
+                nextButton.setAttribute("visible", true);
+            }
+
+            if (selected <= 0) {
+                prevButton.setAttribute("visible", false);
+            }
+            if (selected >= pages.length-1) {
+                nextButton.setAttribute("visible", false);
+            }
+        };
+
+        let tabButtons = [
+            prevButton = UiButton({text:"<-", oncontrollerdown:function() {
+                if (selected > 0) {
+                    pages[selected].setAttribute("visible", false);
+                    selected--;
+                    pages[selected].setAttribute("visible", true);
+                    updatePageButtons();
+                }
+            }}),
+            ...Array.from({length:buttonSpacing},x => UiEntity()), //TODO Kinda wasteful
+            (nextButton = UiButton({text:"->", oncontrollerdown:function() { //NOTE Apparently you need to encase an (x = blah) in parens if it follows a ...stuff
+                if (selected < pages.length-1) {
+                    pages[selected].setAttribute("visible", false);
+                    selected++;
+                    pages[selected].setAttribute("visible", true);
+                    updatePageButtons();
+                }
+            }}))
+        ];
+        updatePageButtons();
+        prevButton.setAttribute("asdf", "prevButton");
+        nextButton.setAttribute("asdf", "nextButton");
+
+        let gridOuter;
+        let gridInner;
+        let pagesEntity;
+        gridOuter = GridLayout({[rowcol]:buttonSpacing+2},
+            ...maybeReverse(second,
+                gridInner = GridLayout({[rowcol]:buttonSpacing+2},
+                    ...tabButtons
+                ),
+                pagesEntity = UiEntity({},
+                    ...pages
+                )
+            )
+        );
+        gridOuter.setAttribute("asdf", "gridOuter");
+        gridInner.setAttribute("asdf", "gridInner");
+        pagesEntity.setAttribute("asdf", "pagesEntity");
+        layout.appendChild(gridOuter);
+    
         return layout;
     }
 
