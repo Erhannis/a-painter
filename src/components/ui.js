@@ -56,7 +56,7 @@ AFRAME.registerComponent('ui', {
   
       let pagesUi = UI.UiRoot(
         UI.PageLayout({side:"left",autodistribute:true,gridparams:{cols:4,rows:6}},
-          ...Array.from({length: 200}, x => UI.UiTransform({scale:[1/6,1/6,1]},
+          ...Array.from({length: 200}, x => UI.UiTransform({scale:[1/6,1/6,1]}, // Turns out 800 buttons affects your frame rate; whodathunk
             UI.GridLayout({cols:4},
               //...Array.from({length: 4}, x => UI.UiButton({size:[rInt(5)+1,rInt(5)+1]}))
               ...Array.from({length: 4}, x => UI.UiButton({size:[rInt(2)+1,rInt(2)+1]}))
