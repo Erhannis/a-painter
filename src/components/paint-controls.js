@@ -13,7 +13,6 @@ AFRAME.registerComponent('paint-controls', {
   init: function () {
     var el = this.el;
     var self = this;
-    var highLightTextureUrl = 'assets/images/controller-pressed.png';
     var tooltips = null;
     this.controller = null;
     this.modelLoaded = false;
@@ -94,61 +93,9 @@ AFRAME.registerComponent('paint-controls', {
       this.controller = controllerName;
     });
 
-    el.addEventListener('brushsize-changed', function (evt) { self.changeBrushSize(evt.detail.size); });
-    el.addEventListener('brushcolor-changed', function (evt) { self.changeBrushColor(evt.detail.color); });
-
-    function createTexture (texture) {
-      var material = self.highLightMaterial = new THREE.MeshBasicMaterial();
-      material.map = texture;
-      material.needsUpdate = true;
-    }
-    el.sceneEl.systems.material.loadTexture(highLightTextureUrl, {src: highLightTextureUrl}, createTexture);
-
     this.startAxis = 0;
 
     this.numberStrokes = 0;
-
-    document.addEventListener('stroke-started', function (event) {
-      if (event.detail.entity.components['paint-controls'] !== self) { return; }
-
-      self.numberStrokes++;
-      self.system.numberStrokes++;
-
-      // 3 Strokes to hide
-      if (self.system.numberStrokes === 3) {
-        var tooltips = Array.prototype.slice.call(document.querySelectorAll('[tooltip]'));
-        var object = { opacity: 1.0 };
-
-        var tween = new AFRAME.TWEEN.Tween(object)
-          .to({opacity: 0.0}, 1000)
-          .onComplete(function () {
-            tooltips.forEach(function (tooltip) {
-              tooltip.setAttribute('visible', false);
-            });
-          })
-          .delay(2000)
-          .onUpdate(function () {
-            tooltips.forEach(function (tooltip) {
-              tooltip.setAttribute('tooltip', {opacity: object.opacity});
-            });
-          });
-        tween.start();
-      }
-    });
-  },
-
-  changeBrushColor: function (color) {
-    if (this.modelLoaded && !!this.buttonMeshes.sizeHint) {
-      this.buttonMeshes.colorTip.material.color.copy(color);
-      this.buttonMeshes.sizeHint.material.color.copy(color);
-    }
-  },
-
-  changeBrushSize: function (size) {
-    var scale = size / 2 * 10;
-    if (this.modelLoaded && !!this.buttonMeshes.sizeHint) {
-      this.buttonMeshes.sizeHint.scale.set(scale, scale, 1);
-    }
   },
 
   // buttonId
@@ -193,10 +140,6 @@ AFRAME.registerComponent('paint-controls', {
     buttonMeshes.colorTip = controllerObject3D.getObjectByName('tip');
 
     this.modelLoaded = true;
-
-    //this.changeBrushSize(this.el.components.brush.data.size);
-    //this.changeBrushColor(this.el.components.brush.color);
-    this.changeBrushSize(0.1); //TODO
   },
 
   onButtonEvent: function (id, evtName) {

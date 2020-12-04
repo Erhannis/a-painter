@@ -23,7 +23,7 @@ AFRAME.registerComponent('ui', {
     uiEl.setAttribute('position', '0 0.04 -0.15');
     uiEl.setAttribute('scale', '0 0 0');
     uiEl.setAttribute('visible', false);
-    uiEl.classList.add('apainter-ui');
+    uiEl.classList.add('ui-container');
     el.appendChild(uiEl);
 
     // Emit request for UI elements to be created
@@ -38,8 +38,51 @@ AFRAME.registerComponent('ui', {
     // Raycaster setup
     el.setAttribute('ui-raycaster', {
       far: this.rayDistance,
-      objects: '.apainter-ui',
+      objects: '.ui-container',
       rotation: -this.rayAngle
+    });
+
+    // Setup default mapping
+    var mappings = {
+      behaviours: {},
+      mappings: {
+        ui_default: {
+          common: {
+          },
+
+          'vive-controls': {
+            'menu.down': 'toggleMenu', //TODO Important
+
+            // Teleport
+            // 'trackpad.down': 'aim', //TODO Should this be included?
+            // 'trackpad.up': 'teleport'  // It seems useful, but also, not really UI
+          },
+
+          'oculus-touch-controls': {
+            'abutton.down': 'toggleMenu',
+            'xbutton.down': 'toggleMenu',
+
+            // Teleport
+            // 'ybutton.down': 'aim',
+            // 'ybutton.up': 'teleport',
+
+            // 'bbutton.down': 'aim',
+            // 'bbutton.up': 'teleport'
+          },
+
+          'windows-motion-controls': {
+            'menu.down': 'toggleMenu',
+
+            // Teleport
+            // 'trackpad.down': 'aim',
+            // 'trackpad.up': 'teleport'
+          },
+        }
+      }
+    };
+    el.sceneEl.addEventListener('loaded', function() {
+      AFRAME.registerInputMappings(mappings);
+      AFRAME.currentInputMapping = 'ui_default';
     });
 
     this.controller = null;

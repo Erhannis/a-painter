@@ -11,6 +11,11 @@
 /* //TODO
 Maybe have a css-like system?
     Maybe have standard styling params, and they by default are passed on to children?
+Checkbox
+Proper radio buttons
+Slider
+Spinner
+Dial
 */
 
  /*
