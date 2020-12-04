@@ -9,25 +9,15 @@ AFRAME.registerComponent('ui', {
     var rayEl = this.rayEl = document.createElement('a-entity');
     this.closed = true;
     this.isTooltipPaused = false;
-    this.colorStack = ['#272727', '#727272', '#FFFFFF', '#24CAFF', '#249F90', '#F2E646', '#EF2D5E'];
     this.bindMethods();
-    this.colorHasChanged = true;
     this.intersectedObjects = [];
     this.hoveredOffObjects = [];
     this.hoveredOnObjects = [];
     this.pressedObjects = {};
     this.selectedObjects = {};
     this.unpressedObjects = {};
-    this.brushButtonsMapping = {};
-    this.brushRegexp = /^(?!.*(fg|bg)$)brush[0-9]+/;
-    this.colorHistoryRegexp = /^(?!.*(fg|bg)$)colorhistory[0-9]+$/;
-    this.hsv = { h: 0.0, s: 0.0, v: 1.0 };
     this.rayAngle = 45;
-    this.rayDistance = 0.2;
-
-    // The cursor is centered in 0,0 to allow scale it easily
-    // This is the offset to put it back in its original position on the slider
-    this.cursorOffset = new THREE.Vector3(0.06409, 0.01419, -0.10242);
+    this.rayDistance = 0.2; //TODO Optionize?
 
     // UI entity setup
     uiEl.setAttribute('position', '0 0.04 -0.15');
@@ -119,7 +109,7 @@ AFRAME.registerComponent('ui', {
   tick: function () {
     // Hack until https://github.com/aframevr/aframe/issues/1886
     // is fixed.
-    this.el.components['ui-raycaster'].refreshObjects();
+    this.el.components['ui-raycaster'].refreshObjects(); //TODO Is that issue fixed?
     if (!this.closed && this.handEl) {
       this.updateIntersections();
       this.handleHover();
@@ -185,25 +175,6 @@ AFRAME.registerComponent('ui', {
     this.hoveredOnObjects.forEach(function triggerAction (button) {
       self.handleButtonDown(button.object, button.point);
     });
-  },
-
-  rgb2hsv: function (r, g, b) {
-    var max = Math.max(r, g, b);
-    var min = Math.min(r, g, b);
-    var d = max - min;
-    var h;
-    var s = (max === 0 ? 0 : d / max);
-    var v = max;
-
-    if (arguments.length === 1) { g = r.g; b = r.b; r = r.r; }
-
-    switch (max) {
-      case min: h = 0; break;
-      case r: h = (g - b) + d * (g < b ? 6 : 0); h /= 6 * d; break;
-      case g: h = (b - r) + d * 2; h /= 6 * d; break;
-      case b: h = (r - g) + d * 4; h /= 6 * d; break;
-    }
-    return {h: h, s: s, v: v};
   },
 
   handleHover: function () {
@@ -360,7 +331,7 @@ AFRAME.registerComponent('ui', {
     var visible = this.closed && this.system.opened;
     //if (this.el.components.brush.active) { return; } //TODO
     this.rayEl.setAttribute('visible', !!visible);
-    this.el.setAttribute('brush', 'enabled', false);
+    //this.el.setAttribute('brush', 'enabled', false); //TODO
   },
 
   onIntersected: function (evt) {
@@ -390,6 +361,7 @@ AFRAME.registerComponent('ui', {
     //this.syncUI();
   },
 
+  // I think this is for, like, when you have manually drawn/dynamic components or something?
   syncUI: function () {
   },
 
