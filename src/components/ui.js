@@ -26,28 +26,8 @@ AFRAME.registerComponent('ui', {
     uiEl.classList.add('apainter-ui');
     el.appendChild(uiEl);
 
-    {
-      let UI = HandMenu;
-
-      let rInt = function(max) {
-        return Math.floor(Math.random() * Math.floor(max));
-      }
-  
-      let brushes = [...Array(100).keys()].map(i => UI.UiButton({text:`${i+1}`}));
-
-      let pagesUi = UI.UiRoot(
-        UI.FoldLayout({},
-          UI.PageLayout({autodistribute:true,gridparams:{cols:3,rows:5}},
-            ...brushes
-          ),
-          UI.UiText({text:"Middle"}),
-          UI.UiText({text:"Right"})
-        )
-      );
-
-      uiEl.appendChild(pagesUi);
-    }
-  
+    // Emit request for UI elements to be created
+    el.emit("requestforui", {uiEl: uiEl});
 
     // Ray entity setup
     rayEl.setAttribute('line', '');
