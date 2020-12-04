@@ -26,19 +26,8 @@
   <body>
     <a-scene vr-analytics>
       <a-assets>
-        <img id="skymap" src="assets/images/sky.jpg" crossorigin="anonymous">
-        <img id="uinormal" src="assets/images/ui-normal.png" crossorigin="anonymous">
-        <img id="floor" src="assets/images/floor.jpg" crossorigin="anonymous">
-        <a-asset-item id="logoobj" src="assets/models/logo.obj"></a-asset-item>
-        <a-asset-item id="logomtl" src="assets/models/logo.mtl"></a-asset-item>
         <a-asset-item id="hitEntityObj" src="assets/models/teleportHitEntity.obj"></a-asset-item>
-        <audio id="ui_click0" src="assets/sounds/ui_click0.ogg">
-        <audio id="ui_click1" src="assets/sounds/ui_click1.ogg">
         <audio id="ui_menu" src="assets/sounds/ui_menu.ogg">
-        <audio id="sound0" src="assets/sounds/415513__darealwollen__mouth-kick.wav">
-        <audio id="sound1" src="assets/sounds/401065__s-cheremisinov__button-08.wav">
-        <audio id="sound2" src="assets/sounds/401368__gcguest1__amcs-rdr-ti04-birdsquawk.wav">
-        <audio id="sound3" src="assets/sounds/414954__grd-music__classic-tr-909-snare-jdxi-1.wav">
       </a-assets>
       <a-light type="point" light="color: #fff; intensity:0.6" position="3 10 1"></a-light>
       <a-light type="point" light="color: #fff; intensity:0.2" position="-3 -10 0"></a-light>
@@ -60,10 +49,11 @@
                   brush
                   if-no-vr-headset="visible: false"
                   paint-controls="hand: left"
-                  teleport-controls="cameraRig: #cameraRig; button: trackpad; ground: #ground; hitCylinderColor: #ff3468; curveHitColor: #ff3468; curveMissColor: #333333; curveLineWidth: 0.01; hitEntity: #hitEntityLeft"
+                  teleport-controls="cameraRig: #cameraRig; button: trackpad; hitCylinderColor: #ff3468; curveHitColor: #ff3468; curveMissColor: #333333; curveLineWidth: 0.01"
                   ui>
                     <script> //TODO Yeah, I know this isn't the most kosher solution, but I'm not sure how to extend the class/entity system, yet
                       document.currentScript.parentElement.addEventListener('requestforui', function addUi ({detail:{uiEl}}) {
+                        console.log("requestforui fulfilling");
                         let UI = HandMenu;
 
                         let brushes = [...Array(100).keys()].map(i => UI.UiButton({text:`${i+1}`}));
@@ -157,7 +147,7 @@
                   brush
                   if-no-vr-headset="visible: false"
                   paint-controls="hand: right"
-                  teleport-controls="cameraRig: #cameraRig; button: trackpad; ground: #ground; hitCylinderColor: #ff3468; curveHitColor: #ff3468; curveMissColor: #333333; curveLineWidth: 0.01; hitEntity: #hitEntityRight"
+                  teleport-controls="cameraRig: #cameraRig; button: trackpad; hitCylinderColor: #ff3468; curveHitColor: #ff3468; curveMissColor: #333333; curveLineWidth: 0.01"
                   ui>
                     <a-entity class="vive-tooltips" visible="false">
                       <a-entity tooltip="text: Brush size\n(slide up/down); width: 0.1; height: 0.04; targetPosition: 0 0.016 0.0073; src: assets/images/tooltip.png"
@@ -233,7 +223,6 @@
         </a-entity>
       </a-entity>
     </a-scene>
-    <a href="https://aframe.io/a-painter/"><div id="apainter-logo" class="hidden"></div><div id="apainter-author" style="display:none" class="hidden">authorname</div></a>
 
     <script src="vendor/ga.js"></script>
 
