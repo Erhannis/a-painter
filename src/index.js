@@ -10,6 +10,8 @@ require('./sharedbuffergeometry.js');
 require('./utils.js');
 require('./ui2d.js');
 
+require('./components/quick-ui.js');
+
 require('./systems/brush.js');
 require('./systems/ui.js');
 require('./systems/painter.js');

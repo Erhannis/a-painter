@@ -47,6 +47,10 @@ AFRAME.registerComponent('ui', {
     uiEl.classList.add('apainter-ui');
     el.appendChild(uiEl);
 
+    // Emit request for UI elements to be created
+    console.log("ui requestforui tx");
+    el.emit("requestforui", {uiEl: uiEl});
+    
     // Ray entity setup
     rayEl.setAttribute('line', '');
 
@@ -229,6 +233,16 @@ AFRAME.registerComponent('ui', {
       }
       default: {
         this.activeWidget = undefined;
+        var callback;
+        if (this.pressedObjects[name]) {
+          callback = object.el.oncontrollerhold;
+        } else {
+          callback = object.el.oncontrollerdown;
+        }
+        if (callback) {
+          callback.call(object.el, object, position);
+          this.activeWidget = name; //TODO Should this not be in the if-block?
+        }    
       }
     }
     this.pressedObjects[name] = object;
@@ -248,6 +262,10 @@ AFRAME.registerComponent('ui', {
     this.activeWidget = undefined;
     Object.keys(pressedObjects).forEach(function (key) {
       var buttonName = pressedObjects[key].name;
+      var callback = pressedObjects[key].el.oncontrollerup;
+      if (callback) {
+        callback(pressedObjects[key]);
+      }
       switch (true) {
         case buttonName === 'size': {
           // self.onBrushSizeUp();
@@ -424,7 +442,11 @@ AFRAME.registerComponent('ui', {
       // Remove hover highlights
       this.hoveredOffObjects.forEach(function (obj) {
         var object = obj.object;
-        object.material = self.highlightMaterials[object.name].normal;
+        if (object.el.materials && object.el.materials.normal) {
+          object.el.setAttribute("material", object.el.materials.normal);
+        } else {
+          object.material = self.highlightMaterials[object.name].normal;
+        }
       });
       // Add highlight to newly intersected objects
       this.hoveredOnObjects.forEach(function (obj) {
@@ -436,27 +458,43 @@ AFRAME.registerComponent('ui', {
         // Update ray
         self.handRayEl.object3D.worldToLocal(point);
         self.handRayEl.setAttribute('line', 'end', point);
-        object.material = self.highlightMaterials[object.name].hover;
+        if (object.el.materials && object.el.materials.hover) {
+          object.el.setAttribute("material", object.el.materials.hover);
+        } else {
+          object.material = self.highlightMaterials[object.name].hover;
+        }
       });
       // Pressed Material
       Object.keys(pressedObjects).forEach(function (key) {
         var object = pressedObjects[key];
         var materials = self.highlightMaterials[object.name];
-        object.material = materials.pressed || object.material;
+        if (object.el.materials && object.el.materials.pressed) {
+          object.el.setAttribute("material", object.el.materials.pressed);
+        } else {
+          object.material = materials.pressed || object.material;
+        }
       });
       // Unpressed Material
       Object.keys(unpressedObjects).forEach(function (key) {
         var object = unpressedObjects[key];
         var materials = self.highlightMaterials[object.name];
-        object.material = materials.normal;
+        if (object.el.materials && object.el.materials.normal) {
+          object.el.setAttribute("material", object.el.materials.normal);
+        } else {
+          object.material = materials.normal;
+        }
         delete unpressedObjects[key];
       });
       // Selected material
       Object.keys(selectedObjects).forEach(function (key) {
         var object = selectedObjects[key];
         var materials = self.highlightMaterials[object.name];
-        if (!materials) { return; }
-        object.material = materials.selected;
+        if (object.el.materials && object.el.materials.selected) {
+          object.el.setAttribute("material", object.el.materials.selected);
+        } else {
+          if (!materials) { return; }
+          object.material = materials.selected;
+        }
       });
     };
   })(),
