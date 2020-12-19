@@ -452,6 +452,13 @@ window.QuickUI = (function() {
             )
         )
         layout.appendChild(gridOuter);
+
+        layout.setIndex = function(idx) {
+            resetTabs();
+            if (idx < tabButtons.length) {
+                tabButtons[idx].oncontrollerdown();
+            }
+        };
   
         return layout;
     }

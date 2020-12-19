@@ -25,6 +25,7 @@
     "webpack-dev-server": "^1.16.1"
   },
   "dependencies": {
-    "aframe-tooltip-component": "^0.1.0"
+    "aframe-tooltip-component": "^0.1.0",
+    "eventtarget": "^0.1.0"
   }
 }

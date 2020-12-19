@@ -1,9 +1,11 @@
+let EventTarget = require("eventtarget");
+
 let data = [{
-    facesPerVertex:0,
-    edgesPerFace:0,
+    facesPerVertex:"X",
+    edgesPerFace:"X",
     symmetries:[
     {
-    mapping:[0],
+    mapping:["X"],
     matrices:[[
     1.0,0.0,0.0,
     0.0,1.0,0.0,
@@ -1187,8 +1189,60 @@ let data = [{
     ]]}]}];
     
 window.SYMMETRIES = {
-    data:{}
+    data:{},
+    edgeTabs:new Set(),
+    faceTabs:{},
+    buttons:{},
+    registerEdgeTabs:function(tabs) {
+        this.edgeTabs.add(tabs)
+        return tabs;
+    },
+    registerFaceTabs:function(kEdges,tabs) {
+        if (!this.faceTabs[kEdges]) {
+            this.faceTabs[kEdges] = new Set();
+        }
+        return tabs;
+    },
+    registerButton:function(kEdges,kFaces,idx,btn) {
+        if (!this.buttons[kEdges]) {
+            this.buttons[kEdges] = {};
+        }
+        if (!this.buttons[kEdges][kFaces]) {
+            this.buttons[kEdges][kFaces] = {};
+        }
+        if (!this.buttons[kEdges][kFaces][idx]) {
+            this.buttons[kEdges][kFaces][idx] = new Set();
+        }
+        this.buttons[kEdges][kFaces][idx].add(btn);
+        return btn;
+    },
+    setSymmetry:function(kEdges,kFaces,idx) {
+        if (this.selected) {
+            for (let btn in this.buttons[this.selected.kEdges][this.selected.kFaces][this.selected.idx]) {
+                btn.materials.normal = btn.materials.normalBak;
+                btn.setAttribute("material", btn.materials.normalBak);
+            }
+        }
+        this.selected = {
+            kEdges:kEdges,
+            kFaces:kFaces,
+            idx:idx,
+            symmetry:this.data[kEdges][kFaces][idx]
+        }
+        for (let btn in this.buttons[this.selected.kEdges][this.selected.kFaces][this.selected.idx]) {
+            btn.materials.normal = btn.materials.selected;
+            btn.setAttribute("material", btn.materials.selected);
+        }
+        this.dispatchEvent({type:"symmetry-changed",symmetry:this.selected});
+    },
+    addSymmetryListener:function(callback) {
+        this.addEventListener("symmetry-changed",function(event) {
+            callback(event.symmetry);
+        });
+    }
 };
+
+EventTarget.call(SYMMETRIES);
 
 for (let i = 0; i < data.length; i++) {
     let symmetry = data[i];

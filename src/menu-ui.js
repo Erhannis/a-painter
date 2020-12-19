@@ -8,25 +8,20 @@
   let rInt = function(max) {
     return Math.floor(Math.random() * Math.floor(max));
   }
-  
   //let edges = 
-  let text;
-  QuickUI.loadUi(({UI}) =>
+  QuickUI.loadUi(({UI}) => 
     UI.FoldLayout({degrees:25,diameter:25},
-      UI.TabsLayout({side:"left",labels:Object.keys(SYMMETRIES.data)}, // Edges
+      SYMMETRIES.registerEdgeTabs(UI.TabsLayout({side:"left",labels:Object.keys(SYMMETRIES.data)}, // Edges
         ...(Object.entries(SYMMETRIES.data).map(([kEdges, vEdges]) =>
-          UI.TabsLayout({side:"left",labels:Object.keys(vEdges)}, // Faces
+          SYMMETRIES.registerFaceTabs(kEdges, UI.TabsLayout({side:"left",labels:Object.keys(vEdges)}, // Faces
             ...(Object.entries(vEdges).map(([kFaces, vFaces]) => 
               UI.GridLayout({rows:6},
-                ...(vFaces.map((symmetry) => UI.UiButton({text:symmetry.mapping})))
+                ...(vFaces.map((symmetry,idx) => SYMMETRIES.registerButton(kEdges,kFaces,idx,UI.UiButton({text:symmetry.mapping}))))
               )
             ))
-          )
+          ))
         ))
-        // UI.TabsLayout({side:"left",labels:["X"]}, // Coin
-        //   UI.UiButton("")
-        // ),
-      ),
+      )),
       UI.UiEntity(),
       UI.UiEntity()
     )
