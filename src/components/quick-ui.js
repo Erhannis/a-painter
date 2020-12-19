@@ -416,7 +416,7 @@ window.QuickUI = (function() {
             for (let i = 0; i < pages.length; i++) {
                 pages[i].setAttribute("visible",false);
                 tabButtons[i].materials.normal = tabButtons[i].materials.normalBak;
-                tabButtons[i].material = tabButtons[i].materials.normalBak;
+                tabButtons[i].setAttribute("material", tabButtons[i].materials.normalBak);
             }
         }
 
@@ -429,7 +429,7 @@ window.QuickUI = (function() {
                     resetTabs();
                     pages[i].setAttribute("visible", true);
                     tabButtons[i].materials.normal = tabButtons[i].materials.selected;
-                    tabButtons[i].material = tabButtons[i].materials.selected;
+                    tabButtons[i].setAttribute("material", tabButtons[i].materials.selected);
                 }});
                 tabButtons[i].materials.normalBak = tabButtons[i].materials.normal;
                 tabButtons[i].materials.selected = getOverrideMaterial();
