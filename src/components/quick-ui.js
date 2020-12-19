@@ -32,7 +32,7 @@ window.UI_COLORS = _.merge({normal:"#909090", hover:"#88CCAA", pressed:"#DDFFDD"
 
 window.QuickUI = (function() {
     function loadUi(callback) {
-        let uiEl = document.currentScript.parentElement.querySelector(".ui-container");
+        let uiEl = document.currentScript.parentElement.querySelector(".apainter-ui");
         if (!uiEl) { // I've seen it work both ways now, where sometimes the `ui`'s init runs before this script, and sometimes after.  A version difference, maybe?
           document.currentScript.parentElement.addEventListener('requestforui', function addUi ({detail:{uiEl}}) {
             let ui = callback({UI:QuickUI});

@@ -1194,13 +1194,15 @@ window.SYMMETRIES = {
     faceTabs:{},
     buttons:{},
     registerEdgeTabs:function(tabs) {
-        this.edgeTabs.add(tabs)
+        this.edgeTabs.add(tabs);
+        console.log("registerEdgeTabs returning",tabs);
         return tabs;
     },
     registerFaceTabs:function(kEdges,tabs) {
         if (!this.faceTabs[kEdges]) {
             this.faceTabs[kEdges] = new Set();
         }
+        this.faceTabs[kEdges].add(tabs);
         return tabs;
     },
     registerButton:function(kEdges,kFaces,idx,btn) {
@@ -1218,10 +1220,10 @@ window.SYMMETRIES = {
     },
     setSymmetry:function(kEdges,kFaces,idx) {
         if (this.selected) {
-            for (let btn in this.buttons[this.selected.kEdges][this.selected.kFaces][this.selected.idx]) {
+            this.buttons[this.selected.kEdges][this.selected.kFaces][this.selected.idx].forEach(btn => {
                 btn.materials.normal = btn.materials.normalBak;
                 btn.setAttribute("material", btn.materials.normalBak);
-            }
+            });
         }
         this.selected = {
             kEdges:kEdges,
@@ -1229,10 +1231,16 @@ window.SYMMETRIES = {
             idx:idx,
             symmetry:this.data[kEdges][kFaces][idx]
         }
-        for (let btn in this.buttons[this.selected.kEdges][this.selected.kFaces][this.selected.idx]) {
+        this.edgeTabs.forEach(tabs => {
+            tabs.setIndex(Object.keys(this.data).indexOf((this.selected.kEdges).toString()));
+        });
+        this.faceTabs[this.selected.kEdges].forEach(tabs => {
+            tabs.setIndex(Object.keys(this.data[this.selected.kEdges]).indexOf((this.selected.kFaces).toString()));
+        });
+        this.buttons[this.selected.kEdges][this.selected.kFaces][this.selected.idx].forEach(btn => {
             btn.materials.normal = btn.materials.selected;
             btn.setAttribute("material", btn.materials.selected);
-        }
+        });
         this.dispatchEvent({type:"symmetry-changed",symmetry:this.selected});
     },
     addSymmetryListener:function(callback) {

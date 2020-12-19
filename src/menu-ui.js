@@ -16,7 +16,9 @@
           SYMMETRIES.registerFaceTabs(kEdges, UI.TabsLayout({side:"left",labels:Object.keys(vEdges)}, // Faces
             ...(Object.entries(vEdges).map(([kFaces, vFaces]) => 
               UI.GridLayout({rows:6},
-                ...(vFaces.map((symmetry,idx) => SYMMETRIES.registerButton(kEdges,kFaces,idx,UI.UiButton({text:symmetry.mapping}))))
+                ...(vFaces.map((symmetry,idx) => SYMMETRIES.registerButton(kEdges,kFaces,idx,UI.UiButton({text:symmetry.mapping,oncontrollerdown:function(){
+                  SYMMETRIES.setSymmetry(kEdges,kFaces,idx);
+                }}))))
               )
             ))
           ))
