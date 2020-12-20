@@ -10,36 +10,6 @@ let data = [{
     1.0,0.0,0.0,
     0.0,1.0,0.0,
     0.0,0.0,1.0
-    ]]},{
-    mapping:[1, 3, 2],
-    matrices:[[
-    1.0,0.0,0.0,
-    0.0,1.0,0.0,
-    0.0,0.0,1.0
-    ],[
-    -0.4591740428961358,0.49020831020572664,0.7408474950593166,
-    0.49020831020572664,-0.5556718677454234,0.6715091868333292,
-    0.7408474950593167,0.6715091868333293,0.014845910641558935
-    ]]},{
-    mapping:[2, 1, 3],
-    matrices:[[
-    1.0,0.0,0.0,
-    0.0,1.0,0.0,
-    0.0,0.0,1.0
-    ],[
-    -0.9421918231444549,0.24754064467021075,-0.22582780527646662,
-    0.2475406446702104,0.059994867453860845,-0.9670182237762903,
-    -0.22582780527646704,-0.96701822377629,-0.11780304430940658
-    ]]},{
-    mapping:[3, 2, 1],
-    matrices:[[
-    1.0,0.0,0.0,
-    0.0,1.0,0.0,
-    0.0,0.0,1.0
-    ],[
-    0.40762286021891225,-0.8121147400435738,-0.41750838653961414,
-    -0.812114740043574,-0.5314580562484816,0.24087752791106262,
-    -0.41750838653961436,0.24087752791106246,-0.8761648039704311
     ]]}]},{
     facesPerVertex:2,
     edgesPerFace:3,
@@ -1187,7 +1157,32 @@ let data = [{
     -0.04145420688763907,-0.9988221562099964,-0.025216046385822536,
     0.8874786390496608,-0.02521604638582273,-0.4601584686118811
     ]]}]}];
-    
+
+for (let a = 0; a < data.length; a++) {
+    let symmetries = data[a].symmetries;
+    for (let b = 0; b < symmetries.length; b++) {
+        let symmetry = symmetries[b].matrices;
+        for (let c = 0; c < symmetry.length; c++) {
+            let matrix = symmetry[c];
+
+            let m4 = new THREE.Matrix4();
+            let s = 0;
+            let t = 0;
+        
+            for (let j = 0; j < 3; j++) {
+                for (let k = 0; k < 3; k++) {
+                m4.elements[t+k] = matrix[s+k];
+                }
+                s+=3;
+                t+=4;
+            }
+            //TODO Transpose?
+            let dy = 1;
+            symmetry[c] = new THREE.Matrix4().makeTranslation(0,dy,0).multiply(m4).multiply(new THREE.Matrix4().makeTranslation(0,-dy,0));      
+        }
+    }
+}
+        
 window.SYMMETRIES = {
     data:{},
     edgeTabs:new Set(),
@@ -1195,7 +1190,6 @@ window.SYMMETRIES = {
     buttons:{},
     registerEdgeTabs:function(tabs) {
         this.edgeTabs.add(tabs);
-        console.log("registerEdgeTabs returning",tabs);
         return tabs;
     },
     registerFaceTabs:function(kEdges,tabs) {
@@ -1219,6 +1213,8 @@ window.SYMMETRIES = {
         return btn;
     },
     setSymmetry:function(kEdges,kFaces,idx) {
+        //document.getElementsByTagName("a-scene")[0].systems.brush.clear();
+
         if (this.selected) {
             this.buttons[this.selected.kEdges][this.selected.kFaces][this.selected.idx].forEach(btn => {
                 btn.materials.normal = btn.materials.normalBak;

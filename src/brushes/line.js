@@ -6,49 +6,18 @@ var onLoaded = require('../onloaded.js');
 
   var geometryManager = null;
 
-  // var symmetries = [
-  //   new THREE.Matrix4().compose(new THREE.Vector3(0,0,0), new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0), 0*2*Math.PI/3), new THREE.Vector3(1,1,1)),
-  //   new THREE.Matrix4().compose(new THREE.Vector3(0,0,0), new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0), 1*2*Math.PI/3), new THREE.Vector3(1,1,1)),
-  //   new THREE.Matrix4().compose(new THREE.Vector3(0,0,0), new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0), 2*2*Math.PI/3), new THREE.Vector3(1,1,1)),
-  //   new THREE.Matrix4().compose(new THREE.Vector3(0,1,0), new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0), 0.5*2*Math.PI/3), new THREE.Vector3(1,-1,1)),
-  //   new THREE.Matrix4().compose(new THREE.Vector3(0,1,0), new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0), 1.5*2*Math.PI/3), new THREE.Vector3(1,-1,1)),
-  //   new THREE.Matrix4().compose(new THREE.Vector3(0,1,0), new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0), 2.5*2*Math.PI/3), new THREE.Vector3(1,-1,1)),
-  // ];
-  var symmetries = [
-    new THREE.Matrix3().set(
-      1.0,0.0,0.0,
-      0.0,1.0,0.0,
-      0.0,0.0,1.0
-      ),
-      new THREE.Matrix3().set(
-      -0.5916438156583321,0.06531201318299451,0.803549585481341,
-      0.06531201318299448,-0.9895540725729615,0.12851878612969975,
-      0.803549585481341,0.1285187861296997,0.581197888231293
-      ),
-          ];
-  for (var i in symmetries) {
-    var m4 = new THREE.Matrix4();
-    var s = 0;
-    var t = 0;
-    symmetries[i] = symmetries[i].transpose();
-    for (var j = 0; j < 3; j++) {
-      for (var k = 0; k < 3; k++) {
-        m4.elements[t+k] = symmetries[i].elements[s+k];
-      }
-      s+=3;
-      t+=4;
-    }
-    var dy = 1;
-    symmetries[i] = new THREE.Matrix4().makeTranslation(0,dy,0).multiply(m4).multiply(new THREE.Matrix4().makeTranslation(0,-dy,0));
-  }
+  var identity = {symmetry:{matrices:[new THREE.Matrix4()]}};
 
+  let optionsBasic;
+  let optionsStandard;
+  let optionTextured;
   onLoaded(function () {
-    var optionsBasic = {
+    optionsBasic = {
       vertexColors: THREE.VertexColors,
       side: THREE.DoubleSide
     };
 
-    var optionsStandard = {
+    optionsStandard = {
       roughness: 0.75,
       metalness: 0.25,
       vertexColors: THREE.VertexColors,
@@ -56,7 +25,7 @@ var onLoaded = require('../onloaded.js');
       side: THREE.DoubleSide
     };
 
-    var optionTextured = {
+    optionTextured = {
       roughness: 0.75,
       metalness: 0.25,
       vertexColors: THREE.VertexColors,
@@ -65,23 +34,33 @@ var onLoaded = require('../onloaded.js');
       transparent: true,
       alphaTest: 0.5
     };
-
-    for (var i in symmetries) {
-      sharedBufferGeometryManager.addSharedBuffer('strip-flat-'+i, new THREE.MeshBasicMaterial(optionsBasic), THREE.TriangleStripDrawMode);
-      sharedBufferGeometryManager.addSharedBuffer('strip-shaded-'+i, new THREE.MeshStandardMaterial(optionsStandard), THREE.TriangleStripDrawMode);
-      sharedBufferGeometryManager.addSharedBuffer('strip-textured-'+i, new THREE.MeshStandardMaterial(optionTextured), THREE.TriangleStripDrawMode);
-    }
   });
 
   var line = {
 
     init: function (color, brushSize) {
-
+      this.symmetries = (SYMMETRIES.selected || identity).symmetry.matrices;
+      
       this.buffers = [];
       this.idxs = [];
       this.prevIdxs = [];
-      for (var i in symmetries) {
-        var buffer = sharedBufferGeometryManager.getSharedBuffer('strip-' + this.materialOptions.type + "-" + i);
+      for (let i in this.symmetries) {
+        let buffer = sharedBufferGeometryManager.getSharedBuffer('strip-' + this.materialOptions.type + "-" + i);
+        if (!buffer) {
+          switch (this.materialOptions.type) {
+            case "shaded":
+              sharedBufferGeometryManager.addSharedBuffer('strip-shaded-'+i, new THREE.MeshStandardMaterial(optionsStandard), THREE.TriangleStripDrawMode);
+              break;
+            case "textured":
+              sharedBufferGeometryManager.addSharedBuffer('strip-textured-'+i, new THREE.MeshStandardMaterial(optionTextured), THREE.TriangleStripDrawMode);
+              break;
+            case "flat":
+            default:
+              sharedBufferGeometryManager.addSharedBuffer('strip-flat-'+i, new THREE.MeshBasicMaterial(optionsBasic), THREE.TriangleStripDrawMode);
+              break;
+          }
+          buffer = sharedBufferGeometryManager.getSharedBuffer('strip-' + this.materialOptions.type + "-" + i);
+        }
         buffer.restartPrimitive();
         this.buffers.push(buffer);
 
@@ -122,8 +101,8 @@ var onLoaded = require('../onloaded.js');
 
         var first = this.first;
 
-        for (var i in symmetries) {
-          var symmetry = symmetries[i];
+        for (var i in this.symmetries) {
+          var symmetry = this.symmetries[i];
           var buffer = this.buffers[i];
           var transA = posA.clone().applyMatrix4(symmetry);
           var transB = posB.clone().applyMatrix4(symmetry);
@@ -188,7 +167,7 @@ var onLoaded = require('../onloaded.js');
       var ab = new THREE.Vector3();
 
       return function () {
-        for (var i in symmetries) {
+        for (var i in this.symmetries) {
           var buffer = this.buffers[i];
           var start = this.prevIdxs[i].position === 0 ? 0 : (this.prevIdxs[i].position + 1) * 3;
           var end = (this.idxs[i].position) * 3;
