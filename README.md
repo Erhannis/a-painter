@@ -7,7 +7,9 @@ Paint in VR in your browser. [Read more!](https://blog.mozvr.com/a-painter/)
 [VIEW GALLERY](https://github.com/aframevr/a-painter/issues/99)
 
 This branch has symmetry modes:
-![demo gif](https://github.com/Erhannis/a-painter/blob/feature/symmetries/symmetries.gif)
+
+![demo gif](https://github.com/Erhannis/a-painter/blob/feature/symmetries/symmetry.gif)
+
 [![demo video](https://img.youtube.com/vi/gp0u3wQQ_tM/0.jpg)](https://www.youtube.com/watch?v=gp0u3wQQ_tM)
 
 See [https://github.com/Erhannis/SymmetrySolver](https://github.com/Erhannis/SymmetrySolver) for a little more explanation.
